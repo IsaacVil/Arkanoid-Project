@@ -27,10 +27,22 @@
     <ClInclude Include="Arkanoid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Nivel1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Assets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Arkanoid.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Nivel1.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Assets.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

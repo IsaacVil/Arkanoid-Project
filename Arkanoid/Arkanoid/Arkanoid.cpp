@@ -4,6 +4,10 @@
 #include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_audio.h>   
 #include <allegro5/allegro_acodec.h> 
+
+#include "Nivel1.h"
+#include "Assets.h"
+
 #include <string>
 #include <iostream>
 using namespace std;
@@ -11,15 +15,6 @@ using namespace std;
 const float FPS = 60.0;
 const int ancho = 1920;
 const int altura = 1000;
-
-ALLEGRO_COLOR colorarcoiris(float tiempo) {
-    // Usa el tiempo para calcular un valor entre 0 y 1 para el color
-    float valor = fmod(tiempo, 1.0f);
-    float r = fabs(sin(valor * 2.0f * 3.14159f));
-    float g = fabs(sin((valor + 0.333f) * 2.0f * 3.14159f));
-    float b = fabs(sin((valor + 0.666f) * 2.0f * 3.14159f));
-    return al_map_rgb_f(r, g, b);
-}
 
 int main() {
 
@@ -49,6 +44,7 @@ int main() {
     ALLEGRO_FONT* fuentesubtitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 20, 0);
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / FPS);
+    ALLEGRO_TIMER* temporizador_bola = al_create_timer(5.0);
 
     ALLEGRO_EVENT_QUEUE* coladeevento = al_create_event_queue();
     if (!coladeevento) {
@@ -61,14 +57,17 @@ int main() {
 
     al_register_event_source(coladeevento, al_get_display_event_source(pantalla));
     al_register_event_source(coladeevento, al_get_timer_event_source(timer));
+    al_register_event_source(coladeevento, al_get_timer_event_source(temporizador_bola));
     al_register_event_source(coladeevento, al_get_keyboard_event_source());
 
     al_start_timer(timer);
+    al_start_timer(temporizador_bola);
 
     bool salida = false;
     int puntos = 0;
     bool menu = true;
     bool niveles = false;
+    bool nivel1 = false;
     bool top5 = false;
     float tiempo = 0.0;
     int opcion = 0;
@@ -82,6 +81,7 @@ int main() {
     }
     ALLEGRO_SAMPLE* musicamenu = al_load_sample("music/menu.ogg");
     ALLEGRO_SAMPLE* musicaniveles = al_load_sample("music/menunivel.ogg");
+    ALLEGRO_SAMPLE* musicanivel1 = al_load_sample("music/nivel1.ogg");
     ALLEGRO_SAMPLE_ID id_musica;
     al_play_sample(musicamenu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
 
@@ -95,7 +95,7 @@ int main() {
         al_clear_to_color(al_map_rgb(0, 0, 0));
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        if (!menu) {
+        if (menu || niveles) {
             if (!musicadetenida) {
                 al_stop_sample(&id_musica);
                 al_play_sample(musicaniveles, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
@@ -105,7 +105,7 @@ int main() {
         else {
             if (musicadetenida) {
                 al_stop_sample(&id_musica);
-                al_play_sample(musicamenu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+                al_play_sample(musicanivel1, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
                 musicadetenida = false;
             }
         }
@@ -186,7 +186,18 @@ int main() {
             if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
                 switch (evento.keyboard.keycode) {
                 case ALLEGRO_KEY_ENTER:
-                    if (opcion == 0 || opcion == 1 || opcion == 2) {
+                    if (opcion == 0) {
+                        menu = false;
+                        niveles = false;
+                        nivel1 = true;
+                        opcion = 0;
+                    }
+                    else if (opcion == 1) {
+                        menu = true;
+                        niveles = false;
+                        opcion = 0;
+                    }
+                    else if (opcion == 2) {
                         menu = true;
                         niveles = false;
                         opcion = 0;
@@ -234,6 +245,9 @@ int main() {
                 al_draw_filled_rectangle(1230, 400, 1500, 570, al_map_rgb(255, 0, 0));
             }
         }
+        else if (nivel1) {
+            iniciarnivel1(fuente, puntos, temporizador_bola, coladeevento, evento);
+        }
         al_flip_display();
     }
 
@@ -242,17 +256,3 @@ int main() {
     al_destroy_event_queue(coladeevento);
     al_destroy_display(pantalla);
 }
-
-/*
-Nivel 1
-            al_clear_to_color(al_map_rgb(0, 0, 0));
-
-            al_draw_filled_rectangle(430, 40, 1310, 1000, al_map_rgb(85, 85, 85));
-
-            al_draw_filled_rectangle(440, 50, 1300, 1000, al_map_rgb(0, 0, 155)); //Dibuja el espacio del juego en si
-
-            al_draw_text(fuente, al_map_rgb(255, 255, 255), 1500, 300, 0, "Puntos");
-            al_draw_text(fuente, al_map_rgb(255, 255, 255), 1500, 350, 0, to_string(puntos).c_str());
-
-            al_flip_display();
-*/

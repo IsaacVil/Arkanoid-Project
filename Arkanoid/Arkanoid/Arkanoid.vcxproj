@@ -180,12 +180,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Arkanoid.h" />
+    <ClInclude Include="Assets.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="Nivel1.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Arkanoid.cpp" />
+    <ClCompile Include="Nivel1.cpp" />
+    <ClCompile Include="Assets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Arkanoid.rc" />
