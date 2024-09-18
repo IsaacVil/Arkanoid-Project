@@ -2,16 +2,16 @@
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
-#include <allegro5/allegro_audio.h>   
-#include <allegro5/allegro_acodec.h> 
-
+#include <allegro5/allegro_audio.h>
+#include <allegro5/allegro_acodec.h>
+#include <allegro5/allegro_image.h>
 #include "Nivel1.h"
 #include "Assets.h"
-
+#include "resource.h"
 #include <string>
 #include <iostream>
-using namespace std;
 
+using namespace std;
 const float FPS = 60.0;
 const int ancho = 1920;
 const int altura = 1000;
@@ -29,9 +29,27 @@ int main() {
 
     al_init_ttf_addon();
 
+    al_init_image_addon();
+
     al_install_keyboard();
 
     ALLEGRO_DISPLAY* pantalla = al_create_display(ancho, altura);
+
+    ALLEGRO_BITMAP* icono = al_load_bitmap("logo.png");
+    if (!icono) {
+        cerr << "Error al cargar el icono." << endl;
+        al_destroy_display(pantalla);
+        return -1;
+    }
+
+    ALLEGRO_BITMAP* star = al_load_bitmap("sprites/star.png");
+    ALLEGRO_BITMAP* iceworld = al_load_bitmap("sprites/iceworld.png");
+    ALLEGRO_BITMAP* galaxy = al_load_bitmap("sprites/galaxy.png");
+    ALLEGRO_BITMAP* blackhole = al_load_bitmap("sprites/blackhole.png");
+
+
+    al_set_display_icon(pantalla, icono);
+    al_destroy_bitmap(icono);
 
     ALLEGRO_FONT* fuente = al_load_ttf_font("font/ARCADE_I.Ttf", 40, 0);
     if (!fuente) {
@@ -85,6 +103,10 @@ int main() {
     ALLEGRO_SAMPLE_ID id_musica;
     al_play_sample(musicamenu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
 
+    int frame = 0;
+    float tiempo_frame = 0.0;
+    const float FRAME_DURATION = 0.1; // Duración de cada frame en segundos
+
     while (!salida) {
         ALLEGRO_EVENT evento;
         al_wait_for_event(coladeevento, &evento);
@@ -93,6 +115,38 @@ int main() {
         }
 
         al_clear_to_color(al_map_rgb(0, 0, 0));
+
+
+        if (evento.type == ALLEGRO_EVENT_TIMER) {
+            tiempo_frame += 1 / FPS;
+            if (tiempo_frame >= FRAME_DURATION) {
+                tiempo_frame = 0.0;
+                frame++;
+                if (frame >= 60) {
+                    frame = 0; // Repetir la animación
+                }
+            }
+        }
+
+        if (menu) {
+            int frames_por_fila = al_get_bitmap_width(star) / 120;
+            int frameX = (frame % frames_por_fila) * 260;
+            int frameY = (frame / frames_por_fila) * 260;
+            al_draw_bitmap_region(star, frameX, frameY, 260, 260, 50, 100, 0);
+            frames_por_fila = al_get_bitmap_width(iceworld) / 110;
+            frameX = (frame % frames_por_fila) * 110;
+            frameY = (frame / frames_por_fila) * 110;
+            al_draw_bitmap_region(iceworld, frameX, frameY, 110, 110, 1600, 100, 0);
+            frames_por_fila = al_get_bitmap_width(galaxy) / 200;
+            frameX = (frame % frames_por_fila) * 200;
+            frameY = (frame / frames_por_fila) * 200;
+            al_draw_bitmap_region(galaxy, frameX, frameY, 200, 200, 1600, 700, 0);
+            frames_por_fila = al_get_bitmap_width(blackhole) / 260;
+            frameX = (frame % frames_por_fila) * 260;
+            frameY = (frame / frames_por_fila) * 260;
+            al_draw_bitmap_region(blackhole, frameX, frameY, 260, 260, 95, 670, 0);
+        }
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if (menu || niveles) {
@@ -175,6 +229,9 @@ int main() {
                 al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 700, 0, "TOP 5");
             }
 
+
+
+
             al_draw_text(fuentesubtitulo, al_map_rgb(255, 255, 255), 475, 900, 0, "Creado Por Isaac Villalobos y Kevin Vega. 2024");
         }
         else if (niveles) {
@@ -255,4 +312,5 @@ int main() {
     al_destroy_timer(timer);
     al_destroy_event_queue(coladeevento);
     al_destroy_display(pantalla);
+    al_destroy_bitmap(star);
 }
