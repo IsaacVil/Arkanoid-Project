@@ -1,0 +1,53 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{CC828AA0-91EC-485D-89F3-ADEEE2D0E2B8}|Arkanoid\\Arkanoid.vcxproj|C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Arkanoid.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{CC828AA0-91EC-485D-89F3-ADEEE2D0E2B8}|Arkanoid\\Arkanoid.vcxproj|solutionrelative:Arkanoid\\Arkanoid.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\taqui\\OneDrive\\Escritorio\\ALLEGRO\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Prototipo de Proyecto ED.cpp",
+              "DocumentMoniker": "C:\\Users\\taqui\\OneDrive\\Escritorio\\ALLEGRO\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED.cpp",
+              "RelativeDocumentMoniker": "..\\..\\ALLEGRO\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED.cpp",
+              "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\ALLEGRO\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED.cpp",
+              "RelativeToolTip": "..\\..\\ALLEGRO\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED\\Prototipo de Proyecto ED.cpp",
+              "ViewState": "AgIAAGwAAAAAAAAAAAAAAIMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-09-18T04:02:13.364Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Arkanoid.cpp",
+              "DocumentMoniker": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Arkanoid.cpp",
+              "RelativeDocumentMoniker": "Arkanoid\\Arkanoid.cpp",
+              "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Arkanoid.cpp",
+              "RelativeToolTip": "Arkanoid\\Arkanoid.cpp",
+              "ViewState": "AgIAAIoAAAAAAAAAAAAAAPYAAAAHAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-09-18T01:44:24.368Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
