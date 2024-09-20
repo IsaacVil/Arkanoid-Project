@@ -7,12 +7,12 @@
       "RelativeMoniker": "D:0:0:{CC828AA0-91EC-485D-89F3-ADEEE2D0E2B8}|Arkanoid\\Arkanoid.vcxproj|solutionrelative:Arkanoid\\Arkanoid.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{CC828AA0-91EC-485D-89F3-ADEEE2D0E2B8}|Arkanoid\\Arkanoid.vcxproj|C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Nivel1.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{CC828AA0-91EC-485D-89F3-ADEEE2D0E2B8}|Arkanoid\\Arkanoid.vcxproj|solutionrelative:Arkanoid\\Nivel1.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{CC828AA0-91EC-485D-89F3-ADEEE2D0E2B8}|Arkanoid\\Arkanoid.vcxproj|C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Assets.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{CC828AA0-91EC-485D-89F3-ADEEE2D0E2B8}|Arkanoid\\Arkanoid.vcxproj|solutionrelative:Arkanoid\\Assets.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CC828AA0-91EC-485D-89F3-ADEEE2D0E2B8}|Arkanoid\\Arkanoid.vcxproj|C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Nivel1.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{CC828AA0-91EC-485D-89F3-ADEEE2D0E2B8}|Arkanoid\\Arkanoid.vcxproj|solutionrelative:Arkanoid\\Nivel1.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,9 +30,9 @@
               "Title": "Arkanoid.cpp",
               "DocumentMoniker": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Arkanoid.cpp",
               "RelativeDocumentMoniker": "Arkanoid\\Arkanoid.cpp",
-              "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Arkanoid.cpp",
-              "RelativeToolTip": "Arkanoid\\Arkanoid.cpp",
-              "ViewState": "AgIAAG8AAAAAAAAAAAAAAJIAAABIAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Arkanoid.cpp*",
+              "RelativeToolTip": "Arkanoid\\Arkanoid.cpp*",
+              "ViewState": "AgIAAAcBAAAAAAAAAAAAADwBAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-18T01:44:24.368Z",
               "IsPinned": true,
@@ -40,26 +40,26 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "Nivel1.cpp",
               "DocumentMoniker": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Nivel1.cpp",
               "RelativeDocumentMoniker": "Arkanoid\\Nivel1.cpp",
               "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Nivel1.cpp",
               "RelativeToolTip": "Arkanoid\\Nivel1.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAmAAAAAAAAAA==",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAACEAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-18T17:23:32.866Z",
               "IsPinned": true
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "Assets.cpp",
               "DocumentMoniker": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Assets.cpp",
               "RelativeDocumentMoniker": "Arkanoid\\Assets.cpp",
               "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Assets.cpp",
               "RelativeToolTip": "Arkanoid\\Assets.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAArAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAADcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-18T17:31:03.806Z"
             }
