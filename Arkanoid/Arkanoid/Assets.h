@@ -16,6 +16,8 @@
 #include <iostream>
 #include <windows.h>
 extern bool juegoPerdido;
+extern int vidas;
+extern bool iniciadoprimeravez;
 ALLEGRO_COLOR colorarcoiris(float tiempo);
 void dibujarBolas();
 bool quedanvidas();

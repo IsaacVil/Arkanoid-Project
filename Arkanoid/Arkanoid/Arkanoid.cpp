@@ -108,24 +108,15 @@ int main() {
     const float FRAME_DURATION = 0.1;
     bool activoespera = false;
     bool perdio = false;
+    bool musicajuego = false;
     while (!salida) {
-
-
-
-
-
-
-
         ALLEGRO_EVENT evento;
         al_wait_for_event(coladeevento, &evento);
         if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             salida = true;
         }
 
-
-
         al_set_target_bitmap(al_get_backbuffer(pantalla));
-
 
         if (evento.type == ALLEGRO_EVENT_TIMER) {
             tiempo_frame += 1 / FPS;
@@ -159,10 +150,11 @@ int main() {
         }
 
         if (menu || niveles) {
-            if (!musicadetenida) {
+            if (!musicadetenida || musicajuego) {
                 al_stop_sample(&id_musica);
                 al_play_sample(musicaniveles, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
                 musicadetenida = true;
+                musicajuego = false;
             }
         }
         else if (juegoPerdido) {
@@ -170,6 +162,7 @@ int main() {
                 al_stop_sample(&id_musica);
                 al_play_sample(vidaperdidamusica, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
                 musicadetenida = true;
+                musicajuego = true;
             }
         }
         else {
@@ -179,11 +172,14 @@ int main() {
                 musicadetenida = false;
             }
         }
+
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
 
         if (menu) ////////////////////////////////////////////MENU////////////////////////////////////////////
         {
+            juegoPerdido = false;
+            vidas = 3;
             activoespera = true;
             tiempo += 1.0 / FPS;
             ALLEGRO_COLOR color_actual = colorarcoiris(tiempo);
@@ -275,6 +271,8 @@ int main() {
             al_draw_text(fuentesubtitulo, al_map_rgb(255, 255, 255), 475 * escaladoX, 900 * escaladoY, 0, "Creado Por Isaac Villalobos y Kevin Vega. 2024");
         }
         else if (niveles) {
+            juegoPerdido = false;
+            vidas = 3;
             if (!activoespera) {
                 al_rest(0.1f);
             }

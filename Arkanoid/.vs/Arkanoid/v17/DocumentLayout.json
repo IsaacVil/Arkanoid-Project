@@ -36,11 +36,10 @@
               "RelativeDocumentMoniker": "Arkanoid\\Arkanoid.cpp",
               "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Arkanoid.cpp",
               "RelativeToolTip": "Arkanoid\\Arkanoid.cpp",
-              "ViewState": "AgIAAFQBAAAAAAAAAAAQwGYBAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAAI8AAAAAAAAAAAAtwKsAAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-18T01:44:24.368Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
@@ -50,10 +49,9 @@
               "RelativeDocumentMoniker": "Arkanoid\\Arkanoid.h",
               "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Arkanoid.h",
               "RelativeToolTip": "Arkanoid\\Arkanoid.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-09-23T00:46:14.68Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-23T00:46:14.68Z"
             },
             {
               "$type": "Document",
@@ -65,8 +63,7 @@
               "RelativeToolTip": "Arkanoid\\Assets.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-09-23T00:46:16.017Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-23T00:46:16.017Z"
             },
             {
               "$type": "Document",
@@ -76,7 +73,7 @@
               "RelativeDocumentMoniker": "Arkanoid\\Assets.cpp",
               "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Assets.cpp",
               "RelativeToolTip": "Arkanoid\\Assets.cpp",
-              "ViewState": "AgIAALMAAAAAAAAAAAAmwJAAAAATAAAAAAAAAA==",
+              "ViewState": "AgIAAG0BAAAAAAAAAAAtwIABAADhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-18T17:31:03.806Z",
               "EditorCaption": ""
