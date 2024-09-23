@@ -19,6 +19,7 @@ const int BASE_WIDTH = 1920;
 const int BASE_HEIGHT = 1000;
 float escaladoX = (float)ancho / BASE_WIDTH;
 float escaladoY = (float)altura / BASE_HEIGHT;
+int puntos = 0;
 float devolverx() {
     return escaladoX;
 }
@@ -90,11 +91,11 @@ int main() {
     ALLEGRO_SAMPLE* musicamenu = al_load_sample("music/menu.ogg");
     ALLEGRO_SAMPLE* musicaniveles = al_load_sample("music/menunivel.ogg");
     ALLEGRO_SAMPLE* musicanivel1 = al_load_sample("music/nivel1.ogg");
+    ALLEGRO_SAMPLE* vidaperdidamusica = al_load_sample("music/vidaperdida.ogg");
     ALLEGRO_SAMPLE_ID id_musica;
     al_play_sample(musicamenu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
 
     bool salida = false;
-    int puntos = 0;
     bool menu = true;
     bool niveles = false;
     bool nivel1 = false;
@@ -106,6 +107,7 @@ int main() {
     float tiempo_frame = 0.0;
     const float FRAME_DURATION = 0.1;
     bool activoespera = false;
+    bool perdio = false;
     while (!salida) {
 
 
@@ -160,6 +162,13 @@ int main() {
             if (!musicadetenida) {
                 al_stop_sample(&id_musica);
                 al_play_sample(musicaniveles, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+                musicadetenida = true;
+            }
+        }
+        else if (juegoPerdido) {
+            if (!musicadetenida) {
+                al_stop_sample(&id_musica);
+                al_play_sample(vidaperdidamusica, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
                 musicadetenida = true;
             }
         }
@@ -344,7 +353,11 @@ int main() {
         }
         else if (nivel1) ////////////////////////////////////////////NIVEL 1////////////////////////////////////////////
         {
-            iniciarnivel1(fuente, puntos, temporizador_bola, coladeevento, evento);
+            iniciarnivel1(fuente, temporizador_bola, coladeevento, evento);
+            if (!quedanvidas()) {
+                nivel1 = false;
+                menu = true;
+            }
         }
         al_flip_display();
     }
