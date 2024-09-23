@@ -36,10 +36,11 @@
               "RelativeDocumentMoniker": "Arkanoid\\Arkanoid.cpp",
               "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Arkanoid.cpp",
               "RelativeToolTip": "Arkanoid\\Arkanoid.cpp",
-              "ViewState": "AgIAAE4BAAAAAAAAAAAQwGMBAAAMAAAAAAAAAA==",
+              "ViewState": "AgIAAFQBAAAAAAAAAAAQwGYBAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-18T01:44:24.368Z",
-              "IsPinned": true
+              "IsPinned": true,
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -51,7 +52,8 @@
               "RelativeToolTip": "Arkanoid\\Arkanoid.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-09-23T00:46:14.68Z"
+              "WhenOpened": "2024-09-23T00:46:14.68Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -74,7 +76,7 @@
               "RelativeDocumentMoniker": "Arkanoid\\Assets.cpp",
               "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Assets.cpp*",
               "RelativeToolTip": "Arkanoid\\Assets.cpp*",
-              "ViewState": "AgIAADwAAAAAAAAAAAAAAFMAAAA/AAAAAAAAAA==",
+              "ViewState": "AgIAALMAAAAAAAAAAAAmwJAAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-18T17:31:03.806Z",
               "EditorCaption": ""
