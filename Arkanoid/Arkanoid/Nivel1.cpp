@@ -1,4 +1,5 @@
 #include <allegro5/allegro_primitives.h>
+#include "Arkanoid.h"
 #include <string>
 #include <vector>
 #include <allegro5/allegro.h>
@@ -13,25 +14,24 @@
 #include "resource.h"
 #include <string>
 #include <iostream>
+#include <windows.h>
+const int ancho = GetSystemMetrics(SM_CXSCREEN);
+const int altura = GetSystemMetrics(SM_CYSCREEN);
+float escaladoX2 = devolverx();
+float escaladoY2 = devolvery();
 using namespace std;
-
-const int anchurabola = 25;
-vector<Bola> bolas;
-float velocidad_bola = 200.0;
-int max_bolas = 5;
-int frames = 1;
-
 void iniciarnivel1(ALLEGRO_FONT* fuente, int& puntos, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento) {
 
     // Dibuja el espacio del juego en sí
-    al_draw_filled_rectangle(430, 40, 1310, 1000, al_map_rgb(145, 145, 145));
-    al_draw_filled_rectangle(440, 50, 1300, 1000, al_map_rgb(0, 0, 155));
+    al_draw_filled_rectangle(430 * escaladoX2, 40 * escaladoY2, 1310 * escaladoX2, 1000 * escaladoY2, al_map_rgb(145, 145, 145));
+    al_draw_filled_rectangle(440 * escaladoX2, 50 * escaladoY2, 1300 * escaladoX2, 1000 * escaladoY2, al_map_rgb(0, 0, 155));
 
     // Mostrar los puntos
-    al_draw_text(fuente, al_map_rgb(255, 255, 255), 1500, 300, 0, "Puntos");
-    al_draw_text(fuente, al_map_rgb(255, 255, 255), 1500, 350, 0, to_string(puntos).c_str());
+    al_draw_text(fuente, al_map_rgb(255, 255, 255), 1500 * escaladoX2, 300 * escaladoY2, 0, "Puntos");
+    al_draw_text(fuente, al_map_rgb(255, 255, 255), 1500 * escaladoX2, 350 * escaladoY2, 0, to_string(puntos).c_str());
 
     // Procesar los eventos de la paleta
+
     paleta(coladeeventos, evento);
 
 }

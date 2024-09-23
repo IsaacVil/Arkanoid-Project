@@ -10,22 +10,31 @@
 #include "resource.h"
 #include <string>
 #include <iostream>
-
+#include <windows.h>
 using namespace std;
 const float FPS = 60.0;
-const int ancho = 1920;
-const int altura = 1000;
-
+const int ancho = GetSystemMetrics(SM_CXSCREEN);
+const int altura = GetSystemMetrics(SM_CYSCREEN);
+const int BASE_WIDTH = 1920;
+const int BASE_HEIGHT = 1000;
+float escaladoX = (float)ancho / BASE_WIDTH;
+float escaladoY = (float)altura / BASE_HEIGHT;
+float devolverx() {
+    return escaladoX;
+}
+float devolvery() {
+    return escaladoY;
+}
 int main() {
 
 
     al_init();
-
     al_init_primitives_addon();
     al_init_font_addon();
     al_init_ttf_addon();
     al_init_image_addon();
     al_install_keyboard();
+    al_set_new_display_flags(ALLEGRO_FULLSCREEN_WINDOW);
     ALLEGRO_DISPLAY* pantalla = al_create_display(ancho, altura);
 
     ALLEGRO_BITMAP* icono = al_load_bitmap("logo.png");
@@ -46,15 +55,15 @@ int main() {
     al_set_display_icon(pantalla, icono);
     al_destroy_bitmap(icono);
 
-    ALLEGRO_FONT* fuente = al_load_ttf_font("font/ARCADE_I.Ttf", 40, 0);
+    ALLEGRO_FONT* fuente = al_load_ttf_font("font/ARCADE_I.Ttf", 40 * escaladoX, 0);
     if (!fuente) {
         cerr << "Error al cargar la fuente." << endl;
         al_destroy_display(pantalla);
         return -1;
     }
 
-    ALLEGRO_FONT* fuentetitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 120, 0);
-    ALLEGRO_FONT* fuentesubtitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 20, 0);
+    ALLEGRO_FONT* fuentetitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 120 * escaladoX, 0);
+    ALLEGRO_FONT* fuentesubtitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 20 * escaladoX, 0);
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / FPS);
     ALLEGRO_TIMER* temporizador_bola = al_create_timer(5.0);
@@ -96,15 +105,25 @@ int main() {
     int frame = 0;
     float tiempo_frame = 0.0;
     const float FRAME_DURATION = 0.1;
-
+    bool activoespera = false;
     while (!salida) {
+
+
+
+
+
+
+
         ALLEGRO_EVENT evento;
         al_wait_for_event(coladeevento, &evento);
         if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
             salida = true;
         }
 
-        al_clear_to_color(al_map_rgb(0, 0, 0));
+
+
+        al_set_target_bitmap(al_get_backbuffer(pantalla));
+
 
         if (evento.type == ALLEGRO_EVENT_TIMER) {
             tiempo_frame += 1 / FPS;
@@ -118,25 +137,26 @@ int main() {
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        if (menu || niveles) {
-            al_draw_tinted_bitmap(background1, al_map_rgba_f(150, 120, 150, 1.0f), 0, 0, 0);
-            int frames = frame * 2;
-            if (frames == 20 || frames == 21 || frames == 22 || frames == 23 || frames == 24 || frames == 25 || frames == 26 || frames == 27) {
-                al_draw_tinted_bitmap(background1, al_map_rgba_f(125, 75, 125, 1.0f), 0, 0, 0);
-            }
-            else if (frames == 28 || frames == 29 || frames == 30 || frames == 31 || frames == 32 || frames == 33 || frames == 34 || frames == 35) {
-                al_draw_tinted_bitmap(background1, al_map_rgba_f(100, 50, 100, 1.0f), 0, 0, 0);
-            }
-            else if (frames == 36 || frames == 37 || frames == 38 || frames == 39 || frames == 40 || frames == 41 || frames == 42 || frames == 43) {
-                al_draw_tinted_bitmap(background1, al_map_rgba_f(55, 30, 55, 1.0f), 0, 0, 0);
-            }
-            else if (frames == 44 || frames == 45 || frames == 46 || frames == 47 || frames == 48 || frames == 49 || frames == 50 || frames == 51) {
-                al_draw_tinted_bitmap(background1, al_map_rgba_f(100, 75, 100, 1.0f), 0, 0, 0);
-            }
-            else if (frames == 52 || frames == 53 || frames == 54 || frames == 55 || frames == 56 || frames == 57 || frames == 58 || frames == 59 || frames == 60) {
-                al_draw_tinted_bitmap(background1, al_map_rgba_f(120, 95, 120, 1.0f), 0, 0, 0);
-            }
 
+        al_draw_tinted_bitmap(background1, al_map_rgba_f(150, 120, 150, 1.0f), 0, 0, 0);
+        int frames = frame * 2;
+        if (frames == 20 || frames == 21 || frames == 22 || frames == 23 || frames == 24 || frames == 25 || frames == 26 || frames == 27) {
+            al_draw_tinted_bitmap(background1, al_map_rgba_f(125, 75, 125, 1.0f), 0, 0, 0);
+        }
+        else if (frames == 28 || frames == 29 || frames == 30 || frames == 31 || frames == 32 || frames == 33 || frames == 34 || frames == 35) {
+            al_draw_tinted_bitmap(background1, al_map_rgba_f(100, 50, 100, 1.0f), 0, 0, 0);
+        }
+        else if (frames == 36 || frames == 37 || frames == 38 || frames == 39 || frames == 40) {
+            al_draw_tinted_bitmap(background1, al_map_rgba_f(55, 30, 55, 1.0f), 0, 0, 0);
+        }
+        else if (frames == 41 || frames == 42 || frames == 43 || frames == 44 || frames == 45 || frames == 46 || frames == 47 || frames == 48 || frames == 49 || frames == 50 || frames == 51) {
+            al_draw_tinted_bitmap(background1, al_map_rgba_f(100, 75, 100, 1.0f), 0, 0, 0);
+        }
+        else if (frames == 52 || frames == 53 || frames == 54 || frames == 55 || frames == 56 || frames == 57 || frames == 58 || frames == 59 || frames == 60) {
+            al_draw_tinted_bitmap(background1, al_map_rgba_f(120, 95, 120, 1.0f), 0, 0, 0);
+        }
+
+        if (menu || niveles) {
             if (!musicadetenida) {
                 al_stop_sample(&id_musica);
                 al_play_sample(musicaniveles, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
@@ -151,41 +171,16 @@ int main() {
             }
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        if (menu) {
-            int frames_por_fila = al_get_bitmap_width(star) / 120;
-            int frameX = (frame % frames_por_fila) * 260;
-            int frameY = (frame / frames_por_fila) * 260;
-            al_draw_bitmap_region(star, frameX, frameY, 260, 260, 50, 100, 0);
-            frames_por_fila = al_get_bitmap_width(world) / 120;
-            frameX = (frame % frames_por_fila) * 120;
-            frameY = (frame / frames_por_fila) * 120;
-            al_draw_bitmap_region(world, frameX, frameY, 120, 120, 750, 60, 0);
-            frames_por_fila = al_get_bitmap_width(world2) / 120;
-            frameX = (frame % frames_por_fila) * 120;
-            frameY = (frame / frames_por_fila) * 120;
-            al_draw_bitmap_region(world2, frameX, frameY, 120, 120, 1300, 560, 0);
-            frames_por_fila = al_get_bitmap_width(iceworld) / 110;
-            frameX = (frame % frames_por_fila) * 110;
-            frameY = (frame / frames_por_fila) * 110;
-            al_draw_bitmap_region(iceworld, frameX, frameY, 110, 110, 1600, 100, 0);
-            frames_por_fila = al_get_bitmap_width(galaxy) / 200;
-            frameX = (frame % frames_por_fila) * 200;
-            frameY = (frame / frames_por_fila) * 200;
-            al_draw_bitmap_region(galaxy, frameX, frameY, 200, 200, 1600, 700, 0);
-            frames_por_fila = al_get_bitmap_width(blackhole) / 260;
-            frameX = (frame % frames_por_fila) * 260;
-            frameY = (frame / frames_por_fila) * 260;
-            al_draw_bitmap_region(blackhole, frameX, frameY, 260, 260, 95, 670, 0);
-        }
+        
 
         if (menu) ////////////////////////////////////////////MENU////////////////////////////////////////////
         {
+            activoespera = true;
             tiempo += 1.0 / FPS;
             ALLEGRO_COLOR color_actual = colorarcoiris(tiempo);
-            al_draw_text(fuentetitulo, color_actual, 472, 250, 0, "ARKANOID");
-            al_draw_text(fuentetitulo, color_actual, 475, 250, 0, "ARKANOID");
-            al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 477, 250, 0, "ARKANOID");
+            al_draw_text(fuentetitulo, color_actual, 472 * escaladoX, 250 * escaladoY, 0, "ARKANOID");
+            al_draw_text(fuentetitulo, color_actual, 475 * escaladoX, 250 * escaladoY, 0, "ARKANOID");
+            al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 477 * escaladoX, 250 * escaladoY, 0, "ARKANOID");
 
             if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
                 switch (evento.keyboard.keycode) {
@@ -222,33 +217,62 @@ int main() {
                 }
             }
             if (opcion == 0) {
-                al_draw_text(fuente, color_actual, 717, 500, 0, "1 JUGADOR");
-                al_draw_text(fuente, color_actual, 718, 500, 0, "1 JUGADOR");
-                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 500, 0, "1 JUGADOR");
-                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 600, 0, "2 JUGADORES");
-                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 700, 0, "TOP 5");
+                al_draw_text(fuente, color_actual, 717 * escaladoX, 500 * escaladoY, 0, "1 JUGADOR");
+                al_draw_text(fuente, color_actual, 718 * escaladoX, 500 * escaladoY, 0, "1 JUGADOR");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720 * escaladoX, 500 * escaladoY, 0, "1 JUGADOR");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720 * escaladoX, 600 * escaladoY, 0, "2 JUGADORES");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720 * escaladoX, 700 * escaladoY, 0, "TOP 5");
             }
             else if (opcion == 1) {
-                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 500, 0, "1 JUGADOR");
-                al_draw_text(fuente, color_actual, 717, 600, 0, "2 JUGADORES");
-                al_draw_text(fuente, color_actual, 718, 600, 0, "2 JUGADORES");
-                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 600, 0, "2 JUGADORES");
-                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 700, 0, "TOP 5");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720 * escaladoX, 500 * escaladoY, 0, "1 JUGADOR");
+                al_draw_text(fuente, color_actual, 717 * escaladoX, 600 * escaladoY, 0, "2 JUGADORES");
+                al_draw_text(fuente, color_actual, 718 * escaladoX, 600 * escaladoY, 0, "2 JUGADORES");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720 * escaladoX, 600 * escaladoY, 0, "2 JUGADORES");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720 * escaladoX, 700 * escaladoY, 0, "TOP 5");
             }
             else if (opcion == 2) {
-                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 500, 0, "1 JUGADOR");
-                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 600, 0, "2 JUGADORES");
-                al_draw_text(fuente, color_actual, 717, 700, 0, "TOP 5");
-                al_draw_text(fuente, color_actual, 718, 700, 0, "TOP 5");
-                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720, 700, 0, "TOP 5");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720 * escaladoX, 500 * escaladoY, 0, "1 JUGADOR");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720 * escaladoX, 600 * escaladoY, 0, "2 JUGADORES");
+                al_draw_text(fuente, color_actual, 717 * escaladoX, 700 * escaladoY, 0, "TOP 5");
+                al_draw_text(fuente, color_actual, 718 * escaladoX, 700 * escaladoY, 0, "TOP 5");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 720 * escaladoX, 700 * escaladoY, 0, "TOP 5");
             }
-            al_draw_text(fuentesubtitulo, al_map_rgb(255, 255, 255), 475, 900, 0, "Creado Por Isaac Villalobos y Kevin Vega. 2024");
+
+            int frames_por_fila = al_get_bitmap_width(star) / 120;
+            int frameX = (frame % frames_por_fila) * 260;
+            int frameY = (frame / frames_por_fila) * 260;
+            al_draw_bitmap_region(star, frameX, frameY, 260, 260, 50 * escaladoX, 100 * escaladoY, 0);
+            frames_por_fila = al_get_bitmap_width(world) / 120;
+            frameX = (frame % frames_por_fila) * 120;
+            frameY = (frame / frames_por_fila) * 120;
+            al_draw_bitmap_region(world, frameX, frameY, 120, 120, 750 * escaladoX, 60 * escaladoY, 0);
+            frames_por_fila = al_get_bitmap_width(world2) / 120;
+            frameX = (frame % frames_por_fila) * 120;
+            frameY = (frame / frames_por_fila) * 120;
+            al_draw_bitmap_region(world2, frameX, frameY, 120, 120, 1300 * escaladoX, 560 * escaladoY, 0);
+            frames_por_fila = al_get_bitmap_width(iceworld) / 110;
+            frameX = (frame % frames_por_fila) * 110;
+            frameY = (frame / frames_por_fila) * 110;
+            al_draw_bitmap_region(iceworld, frameX, frameY, 110, 110, 1600 * escaladoX, 100 * escaladoY, 0);
+            frames_por_fila = al_get_bitmap_width(galaxy) / 200;
+            frameX = (frame % frames_por_fila) * 200;
+            frameY = (frame / frames_por_fila) * 200;
+            al_draw_bitmap_region(galaxy, frameX, frameY, 200, 200, 1600 * escaladoX, 700 * escaladoY, 0);
+            frames_por_fila = al_get_bitmap_width(blackhole) / 260;
+            frameX = (frame % frames_por_fila) * 260;
+            frameY = (frame / frames_por_fila) * 260;
+            al_draw_bitmap_region(blackhole, frameX, frameY, 260, 260, 95 * escaladoX, 670 * escaladoY, 0);
+
+            al_draw_text(fuentesubtitulo, al_map_rgb(255, 255, 255), 475 * escaladoX, 900 * escaladoY, 0, "Creado Por Isaac Villalobos y Kevin Vega. 2024");
         }
         else if (niveles) {
+            if (!activoespera) {
+                al_rest(0.1f);
+            }
             tiempo += 1.0 / FPS;
             ALLEGRO_COLOR color_actual = colorarcoiris(tiempo);
-            al_draw_text(fuentetitulo, color_actual, 555, 200, 0, "NIVELES");
-            al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 560, 200, 0, "NIVELES");
+            al_draw_text(fuentetitulo, color_actual, 555 * escaladoX, 200 * escaladoY, 0, "NIVELES");
+            al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 560 * escaladoX, 200 * escaladoY, 0, "NIVELES");
 
             if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
                 switch (evento.keyboard.keycode) {
@@ -276,25 +300,47 @@ int main() {
                     break;
                 }
             }
+            int frames_por_fila = al_get_bitmap_width(mundo1sel) / 90;
+            int frameX = (frame % frames_por_fila) * 90;
+            int frameY = (frame / frames_por_fila) * 90;
+            al_draw_scaled_bitmap(mundo1, frameX, frameY, 90, 90, 480 * escaladoX, 440 * escaladoY, 90 * 1.5, 90 * 1.5, 0);
+            frames_por_fila = al_get_bitmap_width(mundo2) / 270;
+            frameX = (frame % frames_por_fila) * 270;
+            frameY = (frame / frames_por_fila) * 270;
+            al_draw_scaled_bitmap(mundo2, frameX, frameY, 270, 270, 775 * escaladoX, 340 * escaladoY, 270 * 1.3, 270 * 1.3, 0);
+            frames_por_fila = al_get_bitmap_width(mundo3) / 150;
+            frameX = (frame % frames_por_fila) * 150;
+            frameY = (frame / frames_por_fila) * 150;
+            al_draw_scaled_bitmap(mundo3, frameX, frameY, 150, 150, 1200 * escaladoX, 383 * escaladoY, 150 * 1.8, 150 * 1.8, 0);
 
             if (opcion == 0) {
-                al_draw_filled_rectangle(400, 400, 700, 600, al_map_rgb(0, 205, 0));
-                al_draw_filled_rectangle(430, 400, 700, 570, al_map_rgb(0, 255, 0));
-                al_draw_filled_rectangle(800, 400, 1100, 600, al_map_rgb(0, 0, 255));
-                al_draw_filled_rectangle(1200, 400, 1500, 600, al_map_rgb(255, 0, 0));
+                /*
+                frames_por_fila = al_get_bitmap_width(mundo1sel) / 90;
+                frameX = (frame % frames_por_fila) * 90;
+                frameY = (frame / frames_por_fila) * 90;
+                al_draw_scaled_bitmap(mundo1sel, frameX, frameY, 90, 90, 480, 440, 90 * 1.5, 90 * 1.5, 0);
+                */
+                al_draw_filled_triangle(530 * escaladoX, 644 * escaladoY, 560 * escaladoX, 644 * escaladoY, 545 * escaladoX, 623 * escaladoY, al_map_rgb(0, 0, 205));
             }
             else if (opcion == 1) {
-                al_draw_filled_rectangle(400, 400, 700, 600, al_map_rgb(0, 255, 0));
-                al_draw_filled_rectangle(800, 400, 1100, 600, al_map_rgb(0, 0, 205));
-                al_draw_filled_rectangle(830, 400, 1100, 570, al_map_rgb(0, 0, 255));
-                al_draw_filled_rectangle(1200, 400, 1500, 600, al_map_rgb(255, 0, 0));
+                /*
+                frames_por_fila = al_get_bitmap_width(mundo2sel) / 270;
+                frameX = (frame % frames_por_fila) * 270;
+                frameY = (frame / frames_por_fila) * 270;
+                al_draw_scaled_bitmap(mundo2sel, frameX, frameY, 270, 270, 775, 340, 270 * 1.3, 270 * 1.3, 0);
+                */
+                al_draw_filled_triangle(940 * escaladoX, 644 * escaladoY, 970 * escaladoX, 644 * escaladoY, 955 * escaladoX, 623 * escaladoY, al_map_rgb(0, 0, 205));
             }
             else if (opcion == 2) {
-                al_draw_filled_rectangle(400, 400, 700, 600, al_map_rgb(0, 255, 0));
-                al_draw_filled_rectangle(800, 400, 1100, 600, al_map_rgb(0, 0, 255));
-                al_draw_filled_rectangle(1200, 400, 1500, 600, al_map_rgb(205, 0, 0));
-                al_draw_filled_rectangle(1230, 400, 1500, 570, al_map_rgb(255, 0, 0));
+                /*
+                /frames_por_fila = al_get_bitmap_width(mundo3sel) / 150;
+                frameX = (frame % frames_por_fila) * 150;
+                frameY = (frame / frames_por_fila) * 150;
+                al_draw_scaled_bitmap(mundo3sel, frameX, frameY, 150, 150, 1200, 383, 150 * 1.8, 150 * 1.8, 0);
+                */
+                al_draw_filled_triangle(1320 * escaladoX, 644 * escaladoY, 1350 * escaladoX, 644 * escaladoY, 1335 * escaladoX, 623 * escaladoY, al_map_rgb(0, 0, 205));
             }
+
         }
         else if (nivel1) ////////////////////////////////////////////NIVEL 1////////////////////////////////////////////
         {

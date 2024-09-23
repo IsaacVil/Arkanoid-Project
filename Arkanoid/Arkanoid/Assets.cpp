@@ -1,22 +1,27 @@
 #include "assets.h"
-#include <cstdlib>
 #include "Nivel1.h"
+#include "Arkanoid.h"
+#include <windows.h>
 #include <allegro5/allegro_primitives.h>
 #include <string>
 #include <vector>
-
+#include <cstdlib>
+const int ancho = GetSystemMetrics(SM_CXSCREEN);
+const int altura = GetSystemMetrics(SM_CYSCREEN);
+float escaladoX1 = devolverx();
+float escaladoY1 = devolvery();
 using namespace std;
 
-const int altura = 950;
-const int anchurainicio = 440;
-const int anchurafinal = 1300;
-const int anchura = 860;
 
-float plataforma_x = (anchurainicio + anchurafinal) / 2.0;
-float plataforma_y = altura - 20; // Posiciona la plataforma en la parte inferior de la ventana
-float plataforma_anchura = 180; // Ancho de la plataforma
-float plataforma_altura = 20;   // Alto de la plataforma
-float velocidad = 50;          // Velocidad de movimiento
+const int anchurainicio = 440 * escaladoX1;
+const int anchurafinal = 1300 * escaladoX1;
+
+
+float plataforma_x = ((anchurainicio + anchurafinal) / 2.0) * escaladoX1;
+float plataforma_y = (1000 - 50) * escaladoY1; // Posiciona la plataforma en la parte inferior de la ventana
+float plataforma_anchura = 180 * escaladoX1; // Ancho de la plataforma
+float plataforma_altura = 20 * escaladoY1;   // Alto de la plataforma
+float velocidad = 50 * escaladoX1;          // Velocidad de movimiento
 
 ALLEGRO_COLOR colorarcoiris(float tiempo) {
     float valor = fmod(tiempo, 1.0f);
@@ -28,8 +33,10 @@ ALLEGRO_COLOR colorarcoiris(float tiempo) {
 ALLEGRO_COLOR colorplataforma = al_map_rgb(0, 255, 0);
 ALLEGRO_COLOR colorplataforma2 = al_map_rgb(155, 255, 155);
 
-void paleta(ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento) {
+void bolas(ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento) {
 
+}
+void paleta(ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento) {
     al_draw_filled_rectangle(plataforma_x - plataforma_anchura / 2.0, plataforma_y - plataforma_altura / 2.0, plataforma_x + plataforma_anchura / 2.0, plataforma_y + plataforma_altura / 2.0, colorplataforma);
     al_draw_filled_rectangle(plataforma_x - plataforma_anchura / 2.0 + 15, plataforma_y - plataforma_altura / 2.0 - 5, plataforma_x - plataforma_anchura / 2.0 + 30, plataforma_y + plataforma_altura / 2.0 + 5, colorplataforma2);
     al_draw_filled_rectangle(plataforma_x + plataforma_anchura / 2.0 - 15, plataforma_y - plataforma_altura / 2.0 - 5, plataforma_x + plataforma_anchura / 2.0 - 30, plataforma_y + plataforma_altura / 2.0 + 5, colorplataforma2);
