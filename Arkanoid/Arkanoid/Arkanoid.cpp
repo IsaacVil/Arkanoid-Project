@@ -19,7 +19,24 @@ const int BASE_WIDTH = 1920;
 const int BASE_HEIGHT = 1000;
 float escaladoX = (float)ancho / BASE_WIDTH;
 float escaladoY = (float)altura / BASE_HEIGHT;
+bool salida = false;
+bool menu = true;
+bool niveles = false;
+bool nivel1 = false;
+bool top5 = false;
+float tiempo = 0.0;
+int opcion = 0;
+bool musicadetenida = false;
+int frame = 0;
+float tiempo_frame = 0.0;
+const float FRAME_DURATION = 0.1;
+bool activoespera = false;
+bool perdio = false;
+bool musicajuego = false;
 int puntos = 0;
+ALLEGRO_FONT* fuente = nullptr;
+ALLEGRO_TIMER* temporizador_bola = nullptr;
+ALLEGRO_TIMER* temporizadorcompuerta = nullptr;
 float devolverx() {
     return escaladoX;
 }
@@ -56,7 +73,7 @@ int main() {
     al_set_display_icon(pantalla, icono);
     al_destroy_bitmap(icono);
 
-    ALLEGRO_FONT* fuente = al_load_ttf_font("font/ARCADE_I.Ttf", 40 * escaladoX, 0);
+    fuente = al_load_ttf_font("font/ARCADE_I.Ttf", 40 * escaladoX, 0);
     if (!fuente) {
         cerr << "Error al cargar la fuente." << endl;
         al_destroy_display(pantalla);
@@ -67,7 +84,7 @@ int main() {
     ALLEGRO_FONT* fuentesubtitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 20 * escaladoX, 0);
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / FPS);
-    ALLEGRO_TIMER* temporizador_bola = al_create_timer(5.0);
+    temporizador_bola = al_create_timer(5.0);
 
     ALLEGRO_EVENT_QUEUE* coladeevento = al_create_event_queue();
     if (!coladeevento) {
@@ -95,20 +112,6 @@ int main() {
     ALLEGRO_SAMPLE_ID id_musica;
     al_play_sample(musicamenu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
 
-    bool salida = false;
-    bool menu = true;
-    bool niveles = false;
-    bool nivel1 = false;
-    bool top5 = false;
-    float tiempo = 0.0;
-    int opcion = 0;
-    bool musicadetenida = false;
-    int frame = 0;
-    float tiempo_frame = 0.0;
-    const float FRAME_DURATION = 0.1;
-    bool activoespera = false;
-    bool perdio = false;
-    bool musicajuego = false;
     while (!salida) {
         ALLEGRO_EVENT evento;
         al_wait_for_event(coladeevento, &evento);

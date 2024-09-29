@@ -15,10 +15,11 @@
 #include <string>
 #include <iostream>
 #include <windows.h>
+extern ALLEGRO_FONT* fuente;
 extern float escaladoX;
 extern float escaladoY;
-extern ALLEGRO_FONT* fuente;
 extern int puntos;
+extern int frame;
 #include "resource.h"
 float devolverx();
 float devolvery();
