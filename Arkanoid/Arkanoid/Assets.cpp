@@ -39,6 +39,7 @@ bool juegoPerdido = false;
 bool bolaLanzada = false;
 bool mostrarmensaje = false;
 bool iniciadoprimeravez = false;
+bool animacionterminada = false;
 int contador_frame = 0;
 int velocidad_frame = 100;
 int frame2 = 0;
@@ -700,26 +701,58 @@ void abrircompuerta() {
     int frame_height = al_get_bitmap_height(abierto) / total_frames;
     int frame_width = al_get_bitmap_width(abierto);
 
-    // Control de frames
-    if (contador_frame >= velocidad_frame) {
-        frame++;
-        contador_frame = 0;
-    }
-    else {
-        contador_frame++;
-    }
+    // Variables estáticas
+    static double ultimo_cambio = 0.0;
+    static int frame = 0;
+    static bool en_ultimo_frame = false;  // Para controlar si estamos en el último frame
+    static bool animacion_reversa = false; // Para controlar si la animación es en reversa
+    static double tiempo_en_ultimo_frame = 0.0;  // Tiempo en que llegamos al último frame
 
-    if (frame >= total_frames) {
-        frame = 0;
+    double tiempo_actual = al_get_time(); // Obtener el tiempo actual
+
+    if (!animacionterminada) {
+        if (en_ultimo_frame) {
+            // Si estamos en el último frame, esperar 8 segundos antes de continuar
+            if (tiempo_actual - tiempo_en_ultimo_frame >= 8.0) {
+                en_ultimo_frame = false;  // Resetear el indicador de último frame
+                animacion_reversa = true;  // Cambiar a animación en reversa
+                ultimo_cambio = tiempo_actual;  // Reiniciar el temporizador
+            }
+        }
+        else {
+            // Controlar el cambio de frames cada medio segundo (0.5 segundos)
+            if (tiempo_actual - ultimo_cambio >= 0.3) {
+                if (animacion_reversa) {
+                    frame--;  // Animación en reversa
+
+                    if (frame < 0) {
+                        frame = 0;  // Detener la reversa en el primer frame
+                        animacionterminada = true;
+                        animacion_reversa = false;  // Regresar a animación normal
+                    }
+                }
+                else {
+                    frame++;  // Animación normal
+
+                    if (frame >= total_frames) {
+                        // Si llegamos al último frame
+                        frame = total_frames - 1;  // Mantener el último frame
+                        en_ultimo_frame = true;  // Marcar que estamos en el último frame
+                        tiempo_en_ultimo_frame = tiempo_actual;  // Guardar el tiempo en que llegamos al último frame
+                    }
+                }
+                ultimo_cambio = tiempo_actual; // Actualizar el tiempo del último cambio de frame
+            }
+        }
+
+        int frameX = 0;
+        int frameY = frame * frame_height;
+
+        // Dibujar el bitmap escalado
+        al_draw_scaled_bitmap(abierto, frameX, frameY, frame_width, frame_height,
+            536 * escaladoX, 49.5 * escaladoY,
+            frame_width * (3.9 * escaladoX), frame_height * (4.06 * escaladoY), 0);
     }
-
-    int frameX = 0;
-    int frameY = frame * frame_height;
-
-    // Dibujar el bitmap escalado
-    al_draw_scaled_bitmap(abierto, frameX, frameY, frame_width, frame_height,
-        536 * escaladoX, 49.5 * escaladoY,
-        frame_width * (3.9 * escaladoX), frame_height * (4.06 * escaladoY), 0);
 }
 
 //tipocapsula
@@ -800,6 +833,6 @@ void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
     }
     dibujarCapsulas();
     manejarPoderes();
-    //abrircompuerta();
+    abrircompuerta();
     perdidavida(fuente);
 }
