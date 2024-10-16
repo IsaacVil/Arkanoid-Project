@@ -18,7 +18,16 @@
 extern bool juegoPerdido;
 extern int vidas;
 extern bool iniciadoprimeravez;
+extern bool bolaLanzada;
+extern int puntos;
 ALLEGRO_COLOR colorarcoiris(float tiempo);
 void dibujarBolas();
 bool quedanvidas();
+bool quedanbloques();
 void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento);
+void iniciarnivel2(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento);
+void iniciarduojugadores(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento);
+void liberarBolas();
+void liberarBloques();
+void liberarPoderes();
+void liberarCapsulas();

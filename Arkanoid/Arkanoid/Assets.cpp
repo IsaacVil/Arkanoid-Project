@@ -21,11 +21,9 @@ const int ancho = GetSystemMetrics(SM_CXSCREEN);
 const int altura = GetSystemMetrics(SM_CYSCREEN);
 float escaladoX1 = devolverx();
 float escaladoY1 = devolvery();
-using namespace std;
-
 const int anchurainicio = 360 * escaladoX1;
 const int anchurafinal = 1300 * escaladoX1;
-
+using namespace std;
 float plataforma_x = ((anchurainicio + anchurafinal) / 2.0) * escaladoX1;
 float plataforma_y = (1000 - 50) * escaladoY1; // Posiciona la plataforma en la parte inferior de la ventana
 float plataforma_anchura = 180 * escaladoX1; // Ancho de la plataforma
@@ -34,22 +32,54 @@ float velocidad = 60 * escaladoX1;          // Velocidad de movimiento
 float tiempoMensaje = 0.0f;
 float tiempo_animacion2 = 0.15; // Tiempo en segundos entre frames (ajustado)
 float tiempo_transcurrido2 = 0;
+float compuertax = 0;
+float compuertay = 0;
 bool capsulacaida = false;
 bool juegoPerdido = false;
 bool bolaLanzada = false;
 bool mostrarmensaje = false;
 bool iniciadoprimeravez = false;
 bool animacionterminada = false;
+bool random = false;
 int contador_frame = 0;
 int velocidad_frame = 100;
 int frame2 = 0;
 int vidas = 3;
 int frame_actual2 = 0;
 int frames_totales2 = 8;
+int vidajugador = 5;
+int vidajugador2 = 5;
+int elementonivel = 0;
 double tiempoInicioCapsula = 0;
 double tiempo_anterior2 = 0; // Tiempo del último frame
 int tipocapsula = 1;
 
+ALLEGRO_COLOR obtenerColorNeon() {
+    int seleccion = rand() % 8;  
+    switch (seleccion) {
+    case 0:
+        return al_map_rgb(57, 255, 20);
+
+    case 1:
+        return al_map_rgb(0, 255, 255);
+    case 2:
+        return al_map_rgb(255, 0, 255);
+
+    case 3:
+        return al_map_rgb(255, 0, 102);
+    case 4:
+        return al_map_rgb(102, 255, 102);
+
+    case 5:
+        return al_map_rgb(255, 153, 51);
+    case 6:
+        return al_map_rgb(0, 128, 255);
+    case 7:
+        return al_map_rgb(204, 0, 255);
+    default:
+        return al_map_rgb(204, 0, 255);
+    }
+}
 
 
 ALLEGRO_COLOR colorarcoiris(float tiempo) {
@@ -107,10 +137,23 @@ typedef struct Poderes {
     Poderes* siguiente;
 }* ptrpoderes;
 
+typedef struct Enemigos {
+    int puntos;
+    float x;
+    float y;
+    float velocidadX;
+    float velocidadY;
+    float radio;
+    Enemigos* siguiente;
+}* ptrenemigos;
+
 ptrbola listabola = nullptr;
 ptrbloques listabloques = nullptr;
+ptrbloques listabloquesvivos = nullptr;
 ptrcapsulas listacapsula = nullptr;
 ptrpoderes listapoderes = nullptr;
+ptrenemigos listaenemigos = nullptr;
+
 ptrbola crearBola(float x, float y, float velocidadX, float velocidadY, float radio) {
     ptrbola bola = new(Bola);
     bola->x = x;
@@ -152,6 +195,17 @@ ptrpoderes crearPoder(int tipo, int tiempo) {
     return nuevo;
 }
 
+ptrenemigos crearEnemigos(int puntos, float x, float y, float velocidadX, float velocidadY, float radio) {
+    ptrenemigos nuevo = new Enemigos;
+    nuevo->puntos = puntos;
+    nuevo->x = x;
+    nuevo->y = y;
+    nuevo->velocidadX = velocidadX;
+    nuevo->velocidadY = velocidadY;
+    nuevo->radio = radio;
+    return nuevo;
+}
+
 void agregarBola(ptrbola& bola) {
     bola->siguiente = listabola;
     listabola = bola;
@@ -162,14 +216,23 @@ void agregarBloques(ptrbloques& bloque) {
     listabloques = bloque;
 }
 
+void agregarBloquesvivos(ptrbloques& bloque) {
+    bloque->siguiente = listabloquesvivos;
+    listabloquesvivos = bloque;
+}
 void agregarCapsulas(ptrcapsulas& capsula) {
     capsula->siguiente = listacapsula;
     listacapsula = capsula;
 }
 
-void agregarPoderes(ptrpoderes& nuevo) {
-    nuevo->siguiente = listapoderes;
-    listapoderes = nuevo;
+void agregarPoderes(ptrpoderes& poder) {
+    poder->siguiente = listapoderes;
+    listapoderes = poder;
+}
+
+void agregarEnemigos(ptrenemigos& enemigo) {
+    enemigo->siguiente = listaenemigos;
+    listaenemigos = enemigo;
 }
 
 void dibujarBloques() {
@@ -185,8 +248,29 @@ void dibujarBloques() {
     }
 }
 
+void dibujarBloquesvivos() {
+    ptrbloques actual = listabloquesvivos;
+    while (actual != nullptr) {
+        if (actual->golpe > 0) {
+            ALLEGRO_COLOR colorOscuro = oscurecerColor(actual->color, 1.5f);
+            al_draw_filled_rectangle(actual->plataformax, actual->plataformay, actual->plataformaanchura, actual->plataformaaltura, actual->color);
+            al_draw_filled_rectangle(actual->plataformax + 3 * escaladoX1, actual->plataformay + 40 * escaladoY1, actual->plataformaanchura - 3 * escaladoX1, actual->plataformaaltura - 3 * escaladoY1, oscurecerColor(actual->color, 0.25f));
+            al_draw_filled_rectangle(actual->plataformax + 85 * escaladoX1, actual->plataformay + 3 * escaladoY1, actual->plataformaanchura - 3 * escaladoX1, actual->plataformaaltura - 3 * escaladoY1, oscurecerColor(actual->color, 0.25f));
+        }
+        actual = actual->siguiente;
+    }
+}
+
 void dibujarBolas() {
     ptrbola actual = listabola;
+    while (actual != nullptr) {
+        al_draw_filled_circle(actual->x, actual->y, actual->radio, al_map_rgb(255, 0, 0));
+        actual = actual->siguiente;
+    }
+}
+
+void dibujarEnemigos() {
+    ptrenemigos actual = listaenemigos;
     while (actual != nullptr) {
         al_draw_filled_circle(actual->x, actual->y, actual->radio, al_map_rgb(255, 0, 0));
         actual = actual->siguiente;
@@ -311,6 +395,29 @@ int achocado(ptrbola bola, ptrbloques bloque) {
     return 0;
 }
 
+bool capsularandom() {
+    int x = rand() % 5;
+    int y = rand() % 9;
+    int z = rand() % 12;
+
+    if (elementonivel == 0) {
+        if (x == 2) {
+            return true;
+        }
+    }
+    else if (elementonivel > 0 && elementonivel < 1) {  // Verifica el tipo de elementonivel y ajusta esta condición si es necesario
+        if (y == 2) {
+            return true;
+        }
+    }
+    else {
+        if (z == 2) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void manejarcolision(ptrbola& bola) {
     ptrbloques bloque = listabloques;
     ptrbloques anterior = nullptr; // Para llevar un seguimiento del bloque anterior
@@ -339,7 +446,8 @@ void manejarcolision(ptrbola& bola) {
             }
             ptrbloques bloque_a_eliminar = bloque; // Guardar el bloque para eliminarlo
             bloque = bloque->siguiente; // Avanzar al siguiente bloque
-            if (rand() % 6 == 2) {
+            bool valor = capsularandom();
+            if (valor) {
                 ptrcapsulas nuevo = crearCapsula(((bloque_a_eliminar->plataformax + bloque_a_eliminar->plataformaanchura) / 2), bloque_a_eliminar->plataformaaltura, bloque_a_eliminar->tipodebloque);
                 agregarCapsulas(nuevo);
             }
@@ -352,14 +460,35 @@ void manejarcolision(ptrbola& bola) {
     }
 }
 
+void manejarcolisionvivos(ptrbola& bola) {
+    ptrbloques bloque = listabloquesvivos;
+    ptrbloques anterior = nullptr; // Para llevar un seguimiento del bloque anterior
+
+    while (bloque != nullptr) {
+        if (achocado(bola, bloque) == 1) {
+            bola->velocidadX = -bola->velocidadX;
+            bloque->golpe--;
+        }
+        else if (achocado(bola, bloque) == 2) {
+            bola->velocidadY = -bola->velocidadY;
+            bloque->golpe--;
+        }
+        else {
+            anterior = bloque; // Actualizar el bloque anterior solo si no se eliminó
+            bloque = bloque->siguiente; // Avanzar al siguiente bloque
+        }
+    }
+}
+
 void lanzarBolaDesdePlataforma(float plataforma_x, float plataforma_y, float plataforma_altura) {
-    if (!bolaLanzada) {
-        float velocidadX = (4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f)))*escaladoX1;
-        float velocidadY = -5.0f * escaladoY1; // Lanza la bola hacia arriba
+    if (!bolaLanzada || true) {
+        float velocidadX = (4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) + elementonivel * escaladoX1;
+        float velocidadY = -5.0f - elementonivel * escaladoY1; // Lanza la bola hacia arriba
         ptrbola nuevabola = crearBola(plataforma_x, plataforma_y - plataforma_altura / 2.0 - 10.0f, velocidadX, velocidadY, 10.0f);
         agregarBola(nuevabola); // 10.0f es el radio de la bola
         bolaLanzada = true; // Marca la bola como lanzada
     }
+    
 }
 
 void actualizarBolas(float plataforma_x, float plataforma_y, float plataforma_anchura, float plataforma_altura) {
@@ -380,9 +509,10 @@ void actualizarBolas(float plataforma_x, float plataforma_y, float plataforma_an
         }
 
         manejarcolision(actual);
+        manejarcolisionvivos(actual);
 
         // Colisión con la plataforma
-        if (actual->y + actual->radio >= plataforma_y - plataforma_altura / 2.0 && actual->x >= plataforma_x - plataforma_anchura / 2.0 && actual->x <= plataforma_x + plataforma_anchura / 2.0) {
+        if (actual->y + actual->radio >= plataforma_y - plataforma_altura / 2.0 && actual->x >= plataforma_x - (plataforma_anchura / 2.0) && actual->x <= plataforma_x + (plataforma_anchura / 2.0)) {
             actual->velocidadY *= -1; 
             actual->y = plataforma_y - plataforma_altura / 2.0 - actual->radio;
             puntos += 50;
@@ -412,6 +542,8 @@ void actualizarBolas(float plataforma_x, float plataforma_y, float plataforma_an
     }
 }
 
+
+
 void liberarBolas() {
     while (listabola != nullptr) {
         ptrbola Aux = listabola;
@@ -423,6 +555,14 @@ void liberarBolas() {
 void liberarBloques() {
     while (listabloques != nullptr) {
         ptrbloques Aux = listabloques;
+        listabloques = listabloques->siguiente;
+        delete Aux;
+    }
+}
+
+void liberarBloquesvidas(){
+    while (listabloques != nullptr) {
+        ptrbloques Aux = listabloquesvivos;
         listabloques = listabloques->siguiente;
         delete Aux;
     }
@@ -516,9 +656,9 @@ void velocidadbola(int mas) {
 }
 
 void lanzarBolaDesdeOtra() {
-    float velocidadX = (4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) * escaladoX1;
-    float velocidadX2 = -1 * ((4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) * escaladoX1);
-    float velocidadY = -5.0f * escaladoY1; // Lanza la bola hacia arriba
+    float velocidadX = ((4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) + elementonivel) * escaladoX1;
+    float velocidadX2 = (-1 * ((4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) - elementonivel) * escaladoX1);
+    float velocidadY = (- 5.0f - elementonivel)* escaladoY1; // Lanza la bola hacia arriba
     ptrbola nuevabola = crearBola(listabola->x, listabola->y, velocidadX, listabola->velocidadY, 10.0f);
     ptrbola nuevabola2 = crearBola(listabola->x, listabola->y, velocidadX2, velocidadY, 10.0f);
     agregarBola(nuevabola); // 10.0f es el radio de la bola
@@ -528,9 +668,9 @@ void lanzarBolaDesdeOtra() {
 void lanzarBolaDesdeTODAS() {
     ptrbola aux = listabola;
     while (aux != nullptr) {
-        float velocidadX = (4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) * escaladoX1;
-        float velocidadX2 = -1 * ((4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) * escaladoX1);
-        float velocidadY = -5.0f * escaladoY1; // Lanza la bola hacia arriba
+        float velocidadX = ((4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) + elementonivel) * escaladoX1;
+        float velocidadX2 = ( - 1 * ((4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) - elementonivel) * escaladoX1);
+        float velocidadY = (- 5.0f - elementonivel) * escaladoY1; // Lanza la bola hacia arriba
         ptrbola nuevabola = crearBola(aux->x, aux->y, velocidadX, aux->velocidadY, 10.0f);
         ptrbola nuevabola2 = crearBola(aux->x, aux->y, velocidadX2, velocidadY, 10.0f);
         agregarBola(nuevabola); // 10.0f es el radio de la bola
@@ -656,11 +796,21 @@ void paleta(ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento, ALLEGRO_
     }
     dibujarBolas();
     dibujarBloques();
+    dibujarBloquesvivos();
 }
 
 ////////////////////////////////////////////////////VIDAS////////////////////////////////////////////////////
 bool quedanvidas() {
     if (vidas <= 0) {
+        puntosreales = 0;
+        puntos = 0;
+        return false;
+    }
+    return true;
+}
+
+bool quedanbloques() {
+    if (listabloques == nullptr && ((!juegoPerdido && iniciadoprimeravez))) {
         return false;
     }
     return true;
@@ -677,6 +827,7 @@ void hazperdidounavida() {
         bolaLanzada = false;
         iniciadoprimeravez = false;
     }
+    puntos = puntosreales;
 }
 
 void perdidavida(ALLEGRO_FONT* fuente) {
@@ -693,7 +844,9 @@ void perdidavida(ALLEGRO_FONT* fuente) {
         }
     }
 }
-////////////////////////////////////////////////////VIDAS////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 void abrircompuerta() {
     ALLEGRO_BITMAP* abierto = al_load_bitmap("sprites/backgrounds/10.png");
 
@@ -707,6 +860,17 @@ void abrircompuerta() {
     static bool en_ultimo_frame = false;  // Para controlar si estamos en el último frame
     static bool animacion_reversa = false; // Para controlar si la animación es en reversa
     static double tiempo_en_ultimo_frame = 0.0;  // Tiempo en que llegamos al último frame
+    int z = rand() % 2;
+    if (z == 0 && (!(random))) {
+        compuertax = 532;
+        compuertay = 49.75;
+        random = true;
+    }
+    else if (z != 0 && (!(random))) {
+        compuertax = 998.3;
+        compuertay = 49.75;
+        random = true;
+    }
 
     double tiempo_actual = al_get_time(); // Obtener el tiempo actual
 
@@ -729,6 +893,7 @@ void abrircompuerta() {
                         frame = 0;  // Detener la reversa en el primer frame
                         animacionterminada = true;
                         animacion_reversa = false;  // Regresar a animación normal
+                        random = false;
                     }
                 }
                 else {
@@ -744,21 +909,19 @@ void abrircompuerta() {
                 ultimo_cambio = tiempo_actual; // Actualizar el tiempo del último cambio de frame
             }
         }
-
         int frameX = 0;
         int frameY = frame * frame_height;
-
         // Dibujar el bitmap escalado
         al_draw_scaled_bitmap(abierto, frameX, frameY, frame_width, frame_height,
-            536 * escaladoX, 49.5 * escaladoY,
-            frame_width * (3.9 * escaladoX), frame_height * (4.06 * escaladoY), 0);
+            compuertax * escaladoX, compuertay * escaladoY,
+            frame_width * (4.15 * escaladoX), frame_height * (4.06 * escaladoY), 0);
     }
 }
 
 //tipocapsula
 void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento) {
-
-
+    srand(time(0));
+    elementonivel = 0;
     ALLEGRO_BITMAP* imagen = al_load_bitmap("sprites/backgrounds/1.png");
     if (!imagen) {
         al_draw_filled_rectangle(anchurainicio, 50 * escaladoY1, anchurafinal, 1000 * escaladoY1, al_map_rgb(0, 0, 155));
@@ -783,6 +946,8 @@ void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
     if (juegoPerdido || !iniciadoprimeravez) {
         liberarBolas();
         liberarBloques();
+        liberarBloquesvidas();
+        listabloquesvivos = nullptr;
         liberarPoderes();
         liberarCapsulas();
         int x1 = 480;
@@ -794,20 +959,24 @@ void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
         int y2 = 250;
         int multiplicador = 0;
         for (int i = 0; i < 4; i++) {
-            ptrbloques nuevo = crearBloque(x1 * escaladoX1, (y1 + (100*multiplicador)) * escaladoY1, (x1+100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, al_map_rgb(rand()% 175 + 80, rand() % 175 + 80, rand() % 175 + 80));
-            ptrbloques nuevo1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, al_map_rgb(rand() % 175 + 80, rand() % 175 + 80, rand() % 175 + 80));
-            ptrbloques nuevo3 = crearBloque(x4 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x4 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, al_map_rgb(rand() % 175 + 80, rand() % 175 + 80, rand() % 175 + 80));
-            ptrbloques nuevo4 = crearBloque(x5 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x5 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, al_map_rgb(rand() % 175 + 80, rand() % 175 + 80, rand() % 175 + 80));
-            agregarBloques(nuevo);
-            agregarBloques(nuevo1);
-            agregarBloques(nuevo3);
-            agregarBloques(nuevo4);
+            if (i == 1 || i == 2) {
+                ptrbloques nuevo = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                ptrbloques nuevo4 = crearBloque(x5 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x5 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                agregarBloques(nuevo);
+                agregarBloques(nuevo4);
+            }
+            else if (i == 3) {
+                ptrbloques nuevo = crearBloque(x1 * escaladoX1, (y1 + (100 * (multiplicador + 2))) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * (multiplicador + 2))) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                ptrbloques nuevo4 = crearBloque(x5 * escaladoX1, (y1 + (100 * (multiplicador + 2))) * escaladoY1, (x5 + 100) * escaladoX1, (y2 + (100 * (multiplicador + 2))) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                agregarBloques(nuevo);
+                agregarBloques(nuevo4);
+            }
             multiplicador++;
         }
 
-        ptrbloques nuevo2 = crearBloque(x3 * escaladoX1, (y1 + (100 * 0)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, al_map_rgb(rand() % 175 + 80, rand() % 175 + 80, rand() % 175 + 80));
-        ptrbloques nuevo33 = crearBloque(x3 * escaladoX1, (y1 + (100 * 3)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 3)) * escaladoY1, 1 + rand() % 7, 3, al_map_rgb(rand() % 175 + 80, rand() % 175 + 80, rand() % 175 + 80));
-        ptrbloques nuevos44 = crearBloque(x3 * escaladoX1, (y1 + (150)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (150)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(155, 155, 155));
+        ptrbloques nuevo2 = crearBloque(x3 * escaladoX1, (y1 + (100 * 0)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+        ptrbloques nuevo33 = crearBloque(x3 * escaladoX1, (y1 + (100 * 3)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 3)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+        ptrbloques nuevos44 = crearBloque(x3 * escaladoX1, (y1 + (150)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (150)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
         agregarBloques(nuevo2);
         agregarBloques(nuevo33);
         agregarBloques(nuevos44);
@@ -819,20 +988,193 @@ void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
         x3 = 480;
         multiplicador = 1;
         for (int i = 0; i < 3; i++) {
-            ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(155, 155, 155));
-            ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(155, 155, 155));
-            agregarBloques(nuevos);
-            agregarBloques(nuevos1);
+            if (!(i == 1)) {
+                ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 45, 85));
+                ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 45, 85));
+                agregarBloquesvivos(nuevos);
+                agregarBloquesvivos(nuevos1);
+            }
             multiplicador++;
         }
-        ptrbloques nuevos4 = crearBloque(((x3)+(150 * 1)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 1)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(155, 155, 155));
-        ptrbloques nuevos5 = crearBloque(((x3)+(150 * 3)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 3)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(155, 155, 155));
-        agregarBloques(nuevos4);
-        agregarBloques(nuevos5);
+        ptrbloques nuevos4 = crearBloque(((x3)+(150 * 1)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 1)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333,  al_map_rgb(45, 45, 85));
+        ptrbloques nuevos5 = crearBloque(((x3)+(150 * 3)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 3)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333,  al_map_rgb(45, 45, 85));
+        agregarBloquesvivos(nuevos4);
+        agregarBloquesvivos(nuevos5);
         iniciadoprimeravez = true;
     }
     dibujarCapsulas();
     manejarPoderes();
     abrircompuerta();
     perdidavida(fuente);
+}
+
+void iniciarnivel2(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento) {
+        srand(time(0));
+        ALLEGRO_BITMAP* imagen = al_load_bitmap("sprites/backgrounds/2.png");
+        if (!imagen) {
+            al_draw_filled_rectangle(anchurainicio, 50 * escaladoY1, anchurafinal, 1000 * escaladoY1, al_map_rgb(0, 0, 155));
+        }
+        else
+        {
+            al_draw_scaled_bitmap(imagen, 0, 0, al_get_bitmap_width(imagen), al_get_bitmap_height(imagen), anchurainicio, 50 * escaladoY1, anchurafinal - anchurainicio,
+                (1000 * escaladoY1) - (50 * escaladoY1), 0);
+        }
+
+        al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 300 * escaladoY1, 0, "Puntos");
+        al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 350 * escaladoY1, 0, to_string(puntos).c_str());
+        al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 400 * escaladoY1, 0, "Vidas");
+        al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 450 * escaladoY1, 0, to_string(vidas).c_str());
+        if (juegoPerdido && vidas > 0 && !mostrarmensaje) {
+            vidas = vidas - 1;
+            hazperdidounavida();
+        }
+        else if (!mostrarmensaje) {
+            paleta(coladeeventos, evento, fuente);
+        }
+        if (juegoPerdido || !iniciadoprimeravez) {
+            elementonivel = 0.7;
+            liberarBolas();
+            liberarBloques();
+            liberarBloquesvidas();
+            listabloquesvivos = nullptr;
+            liberarPoderes();
+            liberarCapsulas();
+            int x1 = 480;
+            int x2 = 630;
+            int x3 = 780;
+            int x4 = 930;
+            int x5 = 1080;
+            int y1 = 200;
+            int y2 = 250;
+            int multiplicador = 0;
+            for (int i = 0; i < 4; i++) {
+                ptrbloques nuevo = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                ptrbloques nuevo1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                ptrbloques nuevo3 = crearBloque(x4 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x4 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                ptrbloques nuevo4 = crearBloque(x5 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x5 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                agregarBloques(nuevo);
+                agregarBloques(nuevo1);
+                agregarBloques(nuevo3);
+                agregarBloques(nuevo4);
+                multiplicador++;
+            }
+
+            ptrbloques nuevo2 = crearBloque(x3 * escaladoX1, (y1 + (100 * 0)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo33 = crearBloque(x3 * escaladoX1, (y1 + (100 * 3)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 3)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevos44 = crearBloque(x3 * escaladoX1, (y1 + (150)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (150)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
+            agregarBloques(nuevo2);
+            agregarBloques(nuevo33);
+            agregarBloquesvivos(nuevos44);
+
+            x1 = 380;
+            x2 = 1180;
+            y1 = 150;
+            y2 = 200;
+            x3 = 480;
+            multiplicador = 1;
+            for (int i = 0; i < 3; i++) {
+                ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
+                ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
+                agregarBloquesvivos(nuevos);
+                agregarBloquesvivos(nuevos1);
+                multiplicador++;
+            }
+            ptrbloques nuevos4 = crearBloque(((x3)+(150 * 1)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 1)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
+            ptrbloques nuevos5 = crearBloque(((x3)+(150 * 3)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 3)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
+            agregarBloquesvivos(nuevos4);
+            agregarBloquesvivos(nuevos5);
+            iniciadoprimeravez = true;
+        }
+        dibujarCapsulas();
+        manejarPoderes();
+        abrircompuerta();
+        perdidavida(fuente);
+}
+
+int plataforma_x2 = 35;
+int plataforma_x3 = 1835;
+int plataforma_anchura2 = 37;
+int plataforma_anchura3 = 1837;
+int plataforma_y2 = 500;
+int plataforma_y3 = 500;
+int plataforma_altura2 = 550;
+int plataforma_altura3 = 550;
+int bitmap_ancho = 0;
+int bitmap_alto = 0;
+int bitmap_ancho2 = 0;
+int bitmap_alto2 = 0;
+
+void paletas(int cual, ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento, ALLEGRO_FONT* fuente) {
+    ALLEGRO_BITMAP* player1 = al_load_bitmap("sprites/Nave/normalpl1.png");
+    ALLEGRO_BITMAP* player2 = al_load_bitmap("sprites/Nave/normalpl2.png");
+
+    // Obtén el tamaño original del bitmap
+    bitmap_ancho = al_get_bitmap_width(player1);
+    bitmap_alto = al_get_bitmap_height(player1);
+    bitmap_ancho2 = al_get_bitmap_width(player2);
+    bitmap_alto2 = al_get_bitmap_height(player2);
+
+    // Ajusta el escalado, reduciendo los valores si es necesario
+    if (cual == 1) {
+        al_draw_scaled_bitmap(player1, 0, 0, bitmap_ancho, bitmap_alto,
+            plataforma_x2, plataforma_y2,
+            bitmap_ancho * 3.5, bitmap_alto * 3.5, // Escalado al 50% como ejemplo
+            0);
+    }
+    else if (cual == 2) {
+        al_draw_scaled_bitmap(player2, 0, 0, bitmap_ancho2, bitmap_alto2,
+            plataforma_x3, plataforma_y3,
+            bitmap_ancho2 * 3.5, bitmap_alto2 * 3.5, // Escalado al 50% como ejemplo
+            0);
+    }
+
+    al_destroy_bitmap(player1);
+    al_destroy_bitmap(player2);
+}
+
+void iniciarduojugadores(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento) {
+
+    ALLEGRO_BITMAP* imagen = al_load_bitmap("sprites/backgrounds/20.png");
+        // Definir el punto de rotación en el centro de la imagen
+    float centro_x = al_get_bitmap_width(imagen) / 2;
+    float centro_y = al_get_bitmap_height(imagen) / 2;
+
+        // Definir el área de destino en la pantalla
+    float anchuradisponible = anchurafinal - anchurainicio;
+    float alturadisponible = (1000 * escaladoY1) - (50 * escaladoY1);
+
+        // Ajustar el escalado según las dimensiones disponibles y la rotación
+    float escaladoX2 = alturadisponible / (al_get_bitmap_width(imagen) * 1.02 * escaladoY1);  // Escalado en X
+    float escaladoY2 = anchuradisponible / (al_get_bitmap_height(imagen) * 1.02* escaladoY1); // Escalado en Y
+
+        // Posición central en pantalla
+    float pos_x = 430 * escaladoX1;
+    float pos_x2 = 1488 * escaladoX1;
+    float pos_y = 50 * escaladoY1 + alturadisponible / 2;
+
+
+        // Dibujar la imagen escalada y rotada 90 grados
+    al_draw_scaled_rotated_bitmap(
+        imagen,
+        centro_x, centro_y,                 // Centro de la imagen para rotación
+        pos_x, pos_y,                       // Posición en la pantalla
+        escaladoX2, escaladoY2,             // Escalado ajustado en X y Y
+        ALLEGRO_PI / 2,                     // Rotar 90 grados (en radianes)
+        0);
+
+    al_draw_scaled_rotated_bitmap(
+        imagen,
+        centro_x, centro_y,                 // Centro de la imagen para rotación
+        pos_x2, pos_y,                       // Posición en la pantalla
+        escaladoX2, escaladoY2,             // Escalado ajustado en X y Y
+        3 * ALLEGRO_PI / 2,                     // Rotar 90 grados (en radianes)
+        0);
+
+
+    ALLEGRO_FONT* fuentetitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 100 * escaladoX, 0);
+    al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 910 * escaladoX1, 270 * escaladoY1, 0, to_string(vidajugador).c_str());
+    al_draw_text(fuentetitulo, color_actual, 910 * escaladoX1, 485 * escaladoY1, 0, "|");
+    al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 910 * escaladoX1, 700 * escaladoY1, 0, to_string(vidajugador2).c_str());
+    paletas(1, coladeeventos, evento, fuente);
+    paletas(2, coladeeventos, evento, fuente);
 }

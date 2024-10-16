@@ -16,9 +16,12 @@
 #include <iostream>
 #include <windows.h>
 extern ALLEGRO_FONT* fuente;
+extern ALLEGRO_COLOR color_actual;
 extern float escaladoX;
 extern float escaladoY;
+extern float tiempo;
 extern int puntos;
+extern int puntosreales;
 extern int frame;
 #include "resource.h"
 float devolverx();

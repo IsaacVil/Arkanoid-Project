@@ -33,6 +33,9 @@
     <ClInclude Include="Assets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dosjugadores.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Arkanoid.cpp">
@@ -42,6 +45,9 @@
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="Assets.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dosjugadores.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>

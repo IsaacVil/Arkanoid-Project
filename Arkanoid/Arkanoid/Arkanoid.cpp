@@ -23,9 +23,14 @@ bool salida = false;
 bool menu = true;
 bool niveles = false;
 bool nivel1 = false;
+bool nivel2 = false;
+bool nivel3 = false;
+bool transicion1 = false;
+bool transicion2 = false;
 bool top5 = false;
 float tiempo = 0.0;
 int opcion = 0;
+int puntosreales = 0;
 bool musicadetenida = false;
 int frame = 0;
 float tiempo_frame = 0.0;
@@ -33,10 +38,14 @@ const float FRAME_DURATION = 0.1;
 bool activoespera = false;
 bool perdio = false;
 bool musicajuego = false;
+bool duojugadores = false;
 int puntos = 0;
+double tiempomensajetrans1 = 0;
+double tiempomensajetrans2 = 0;
 ALLEGRO_FONT* fuente = nullptr;
 ALLEGRO_TIMER* temporizador_bola = nullptr;
 ALLEGRO_TIMER* temporizadorcompuerta = nullptr;
+ALLEGRO_COLOR color_actual;
 float devolverx() {
     return escaladoX;
 }
@@ -108,7 +117,10 @@ int main() {
     ALLEGRO_SAMPLE* musicamenu = al_load_sample("music/menu.ogg");
     ALLEGRO_SAMPLE* musicaniveles = al_load_sample("music/menunivel.ogg");
     ALLEGRO_SAMPLE* musicanivel1 = al_load_sample("music/nivel1.ogg");
+    ALLEGRO_SAMPLE* musicanivel2 = al_load_sample("music/nivel2.ogg");
+    ALLEGRO_SAMPLE* musicanivel3 = al_load_sample("music/nivel3.ogg");
     ALLEGRO_SAMPLE* vidaperdidamusica = al_load_sample("music/vidaperdida.ogg");
+    ALLEGRO_SAMPLE* victorykir = al_load_sample("music/victorykir.ogg");
     ALLEGRO_SAMPLE_ID id_musica;
     al_play_sample(musicamenu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
 
@@ -168,10 +180,32 @@ int main() {
                 musicajuego = true;
             }
         }
-        else {
+        else if (duojugadores) {
             if (musicadetenida) {
                 al_stop_sample(&id_musica);
+                al_play_sample(musicanivel2, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+                musicadetenida = false;
+            }
+        }
+        else {
+            if (musicadetenida && nivel1) {
+                al_stop_sample(&id_musica);
                 al_play_sample(musicanivel1, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+                musicadetenida = false;
+            }
+            else if (musicadetenida && nivel2) {
+                al_stop_sample(&id_musica);
+                al_play_sample(musicanivel2, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+                musicadetenida = false;
+            }
+            else if (musicadetenida && (transicion1 || transicion2)) {
+                al_stop_sample(&id_musica);
+                al_play_sample(victorykir, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+                musicadetenida = false;
+            }
+            else if (musicadetenida && nivel3) {
+                al_stop_sample(&id_musica);
+                al_play_sample(musicanivel3, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
                 musicadetenida = false;
             }
         }
@@ -185,7 +219,7 @@ int main() {
             vidas = 3;
             activoespera = true;
             tiempo += 1.0 / FPS;
-            ALLEGRO_COLOR color_actual = colorarcoiris(tiempo);
+            color_actual = colorarcoiris(tiempo);
             al_draw_text(fuentetitulo, color_actual, 472 * escaladoX, 250 * escaladoY, 0, "ARKANOID");
             al_draw_text(fuentetitulo, color_actual, 475 * escaladoX, 250 * escaladoY, 0, "ARKANOID");
             al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 477 * escaladoX, 250 * escaladoY, 0, "ARKANOID");
@@ -200,7 +234,9 @@ int main() {
                     }
                     else if (opcion == 1) {
                         menu = false;
-                        niveles = true;
+                        duojugadores = true;
+                        niveles = false;
+                        top5 = false;
                         opcion = 0;
                     }
                     else if (opcion == 2) {
@@ -287,10 +323,20 @@ int main() {
             if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
                 switch (evento.keyboard.keycode) {
                 case ALLEGRO_KEY_ENTER:
-                    if (opcion == 0 || opcion == 1 || opcion == 2) {
+                    if (opcion == 0 || opcion == 2) {
                         menu = false;
                         niveles = false;
+                        duojugadores = false;
                         nivel1 = true;
+                        nivel2 = false;
+                        opcion = 0;
+                    }
+                    if (opcion == 1) {
+                        menu = false;
+                        niveles = false;
+                        duojugadores = false;
+                        nivel1 = false;
+                        nivel2 = true;
                         opcion = 0;
                     }
                     break;
@@ -352,12 +398,79 @@ int main() {
             }
 
         }
+        else if (duojugadores) ////////////////////////////////////////////NIVEL 1////////////////////////////////////////////
+        {
+            tiempo += 0.3 / FPS;
+            color_actual = colorarcoiris(tiempo);
+            iniciarduojugadores(fuente, temporizador_bola, coladeevento, evento);
+        }
         else if (nivel1) ////////////////////////////////////////////NIVEL 1////////////////////////////////////////////
         {
             iniciarnivel1(fuente, temporizador_bola, coladeevento, evento);
             if (!quedanvidas()) {
                 nivel1 = false;
                 menu = true;
+                iniciadoprimeravez = false;
+            }
+            if (!quedanbloques()) {
+                nivel1 = false;
+                nivel2 = false;
+                nivel3 = false;
+                transicion1 = true;
+                tiempomensajetrans1 = al_get_time();
+                bolaLanzada = false;
+                al_stop_sample(&id_musica);
+                musicadetenida = true;
+                musicajuego = false;
+                iniciadoprimeravez = false;
+            }
+        }
+        else if (transicion1 && !nivel2) {
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 300 * escaladoY, 0, "Haz Ganado el Nivel 1");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 500 * escaladoY, 0, "Continuando al siguiente...");
+            if (al_get_time() - tiempomensajetrans1 >= 6.0f) {
+                transicion1 = false;
+                nivel1 = false;
+                nivel3 = false;
+                nivel2 = true;
+                puntosreales = puntos;
+                al_stop_sample(&id_musica);
+                musicadetenida = true;
+                musicajuego = false;
+            }
+        }
+        else if (nivel2) {
+            iniciarnivel2(fuente, temporizador_bola, coladeevento, evento);
+            if (!quedanvidas()) {
+                nivel2 = false;
+                menu = true;
+                iniciadoprimeravez = false;
+            }
+            if (!quedanbloques()) {
+                nivel1 = false;
+                nivel3 = false;
+                nivel2 = false;
+                transicion2 = true;
+                tiempomensajetrans2 = al_get_time();
+                bolaLanzada = false;
+                al_stop_sample(&id_musica);
+                musicadetenida = true;
+                musicajuego = false;
+                iniciadoprimeravez = false;
+            }
+        }
+        else if (transicion2 && !nivel3) {
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 300 * escaladoY, 0, "Haz Ganado el Nivel 2");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 500 * escaladoY, 0, "Continuando al siguiente...");
+            if (al_get_time() - tiempomensajetrans2 >= 6.0f) {
+                transicion2 = false;
+                nivel1 = false;
+                nivel2 = false;
+                nivel3 = true;
+                puntosreales = puntos;
+                al_stop_sample(&id_musica);
+                musicadetenida = true;
+                musicajuego = false;
             }
         }
         al_flip_display();
