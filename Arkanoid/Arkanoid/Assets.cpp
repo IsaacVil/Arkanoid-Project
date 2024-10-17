@@ -55,29 +55,52 @@ double tiempo_anterior2 = 0; // Tiempo del último frame
 int tipocapsula = 1;
 
 ALLEGRO_COLOR obtenerColorNeon() {
-    int seleccion = rand() % 8;  
+    int seleccion = rand() % 8;
     switch (seleccion) {
     case 0:
+        if (nivel2) {
+            return al_map_rgb(0, 255, 255);
+        }
         return al_map_rgb(57, 255, 20);
 
     case 1:
+        if (nivel1) {
+            return al_map_rgb(57, 255, 20); 
+        }
         return al_map_rgb(0, 255, 255);
+
     case 2:
+        if (nivel3) {
+            return al_map_rgb(57, 255, 20); 
+        }
         return al_map_rgb(255, 0, 255);
 
     case 3:
-        return al_map_rgb(255, 0, 102);
+        return al_map_rgb(255, 0, 102); 
+
     case 4:
-        return al_map_rgb(102, 255, 102);
+        if (nivel2) {
+            return al_map_rgb(255, 0, 102); 
+        }
+        return al_map_rgb(102, 255, 102); 
 
     case 5:
-        return al_map_rgb(255, 153, 51);
+        return al_map_rgb(255, 153, 51); 
+
     case 6:
-        return al_map_rgb(0, 128, 255);
+        if (nivel1) {
+            return al_map_rgb(255, 153, 51); 
+        }
+        return al_map_rgb(0, 128, 255); 
+
     case 7:
-        return al_map_rgb(204, 0, 255);
+        if (nivel3) {
+            return al_map_rgb(57, 255, 20); 
+        }
+        return al_map_rgb(204, 0, 255); 
+
     default:
-        return al_map_rgb(204, 0, 255);
+        return al_map_rgb(204, 0, 255); 
     }
 }
 
@@ -264,9 +287,46 @@ void dibujarBloquesvivos() {
 void dibujarBolas() {
     ptrbola actual = listabola;
     while (actual != nullptr) {
-        al_draw_filled_circle(actual->x, actual->y, actual->radio, al_map_rgb(255, 0, 0));
-        actual = actual->siguiente;
+        if (nivel3) {
+            ALLEGRO_COLOR red40 = colorarcoiris(tiempo);
+            al_draw_filled_circle(actual->x, actual->y, actual->radio + 3, al_map_rgb(255, 255, 255));
+            al_draw_filled_circle(actual->x, actual->y, actual->radio, red40);
+            actual = actual->siguiente;
+        }
+        else {
+            al_draw_filled_circle(actual->x, actual->y, actual->radio + 3, al_map_rgb(0, 0, 0));
+            al_draw_filled_circle(actual->x, actual->y, actual->radio, al_map_rgb(255, 0, 0));
+            actual = actual->siguiente;
+        }
     }
+}
+
+void cambiarbackground(ALLEGRO_BITMAP*& background1) {
+    ALLEGRO_COLOR color;
+
+    if (frames >= 20 && frames <= 27) {
+        color = al_map_rgba_f(125 / 255.0, 75 / 255.0, 125 / 255.0, 1.0f);
+    }
+    else if (frames >= 28 && frames <= 35) {
+        color = al_map_rgba_f(100 / 255.0, 50 / 255.0, 100 / 255.0, 1.0f);
+    }
+    else if (frames >= 36 && frames <= 40) {
+        color = al_map_rgba_f(55 / 255.0, 30 / 255.0, 55 / 255.0, 1.0f);
+    }
+    else if (frames >= 41 && frames <= 51) {
+        color = al_map_rgba_f(100 / 255.0, 75 / 255.0, 100 / 255.0, 1.0f);
+    }
+    else if (frames >= 52 && frames <= 60) {
+        color = al_map_rgba_f(120 / 255.0, 95 / 255.0, 120 / 255.0, 1.0f);
+    }
+    else {
+        color = al_map_rgba_f(120 / 255.0, 95 / 255.0, 120 / 255.0, 1.0f);
+    }
+
+    float width = al_get_bitmap_width(background1);
+    float height = al_get_bitmap_height(background1);
+
+    al_draw_tinted_scaled_bitmap(background1,color,0, 0,width, height,anchurainicio, 50 * escaladoY1,anchurafinal - anchurainicio, (1000 * escaladoY1) - (50 * escaladoY1),0);
 }
 
 void dibujarEnemigos() {
@@ -396,22 +456,18 @@ int achocado(ptrbola bola, ptrbloques bloque) {
 }
 
 bool capsularandom() {
-    int x = rand() % 5;
-    int y = rand() % 9;
-    int z = rand() % 12;
-
-    if (elementonivel == 0) {
-        if (x == 2) {
+    if (nivel1) {
+        if (random1 == 2) {
             return true;
         }
     }
-    else if (elementonivel > 0 && elementonivel < 1) {  // Verifica el tipo de elementonivel y ajusta esta condición si es necesario
-        if (y == 2) {
+    else if (nivel2) {
+        if (random2 == 2) {
             return true;
         }
     }
-    else {
-        if (z == 2) {
+    else if (nivel3) {
+        if (random3 == 2) {
             return true;
         }
     }
@@ -481,7 +537,7 @@ void manejarcolisionvivos(ptrbola& bola) {
 }
 
 void lanzarBolaDesdePlataforma(float plataforma_x, float plataforma_y, float plataforma_altura) {
-    if (!bolaLanzada || true) {
+    if (!bolaLanzada) {
         float velocidadX = (4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) + elementonivel * escaladoX1;
         float velocidadY = -5.0f - elementonivel * escaladoY1; // Lanza la bola hacia arriba
         ptrbola nuevabola = crearBola(plataforma_x, plataforma_y - plataforma_altura / 2.0 - 10.0f, velocidadX, velocidadY, 10.0f);
@@ -860,6 +916,7 @@ void abrircompuerta() {
     static bool en_ultimo_frame = false;  // Para controlar si estamos en el último frame
     static bool animacion_reversa = false; // Para controlar si la animación es en reversa
     static double tiempo_en_ultimo_frame = 0.0;  // Tiempo en que llegamos al último frame
+    static double ultimo_cambio_color = 0.0;  // Tiempo del último cambio de color
     int z = rand() % 2;
     if (z == 0 && (!(random))) {
         compuertax = 532;
@@ -874,6 +931,7 @@ void abrircompuerta() {
 
     double tiempo_actual = al_get_time(); // Obtener el tiempo actual
 
+    // Controlar la animación
     if (!animacionterminada) {
         if (en_ultimo_frame) {
             // Si estamos en el último frame, esperar 8 segundos antes de continuar
@@ -909,12 +967,37 @@ void abrircompuerta() {
                 ultimo_cambio = tiempo_actual; // Actualizar el tiempo del último cambio de frame
             }
         }
+
         int frameX = 0;
         int frameY = frame * frame_height;
-        // Dibujar el bitmap escalado
-        al_draw_scaled_bitmap(abierto, frameX, frameY, frame_width, frame_height,
-            compuertax * escaladoX, compuertay * escaladoY,
-            frame_width * (4.15 * escaladoX), frame_height * (4.06 * escaladoY), 0);
+        if (nivel3) {
+            ALLEGRO_COLOR color;
+            if (frames >= 20 && frames <= 27) {
+                color = al_map_rgba_f(125 / 255.0, 75 / 255.0, 125 / 255.0, 1.0f);
+            }
+            else if (frames >= 28 && frames <= 35) {
+                color = al_map_rgba_f(100 / 255.0, 50 / 255.0, 100 / 255.0, 1.0f);
+            }
+            else if (frames >= 36 && frames <= 40) {
+                color = al_map_rgba_f(55 / 255.0, 30 / 255.0, 55 / 255.0, 1.0f);
+            }
+            else if (frames >= 41 && frames <= 51) {
+                color = al_map_rgba_f(100 / 255.0, 75 / 255.0, 100 / 255.0, 1.0f);
+            }
+            else if (frames >= 52 && frames <= 60) {
+                color = al_map_rgba_f(120 / 255.0, 95 / 255.0, 120 / 255.0, 1.0f);
+            }
+            else {
+                color = al_map_rgba_f(120 / 255.0, 95 / 255.0, 120 / 255.0, 1.0f);
+            }
+
+            al_draw_tinted_scaled_bitmap(abierto, color, frameX, frameY, frame_width, frame_height, compuertax * escaladoX, compuertay * escaladoY, frame_width * (4.15 * escaladoX), frame_height * (4.06 * escaladoY), 0);
+        }
+        else {
+            al_draw_scaled_bitmap(abierto, frameX, frameY, frame_width, frame_height,
+                compuertax * escaladoX, compuertay * escaladoY,
+                frame_width * (4.15 * escaladoX), frame_height * (4.06 * escaladoY), 0);
+        }
     }
 }
 
@@ -1052,16 +1135,25 @@ void iniciarnivel2(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
                 ptrbloques nuevo1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
                 ptrbloques nuevo3 = crearBloque(x4 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x4 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
                 ptrbloques nuevo4 = crearBloque(x5 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x5 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-                agregarBloques(nuevo);
-                agregarBloques(nuevo1);
-                agregarBloques(nuevo3);
-                agregarBloques(nuevo4);
+                if (i == 0 || i == 3) {
+                    agregarBloques(nuevo1);
+                    agregarBloques(nuevo3);
+                }
+                else {
+                    agregarBloques(nuevo);
+                    agregarBloques(nuevo1);
+                    agregarBloques(nuevo3);
+                    agregarBloques(nuevo4);
+                }
                 multiplicador++;
             }
-
+            ptrbloques nuevoz = crearBloque(780 * escaladoX1, (100 + (100 * 0)) * escaladoY1, (780 + 100) * escaladoX1, (150 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevoz1 = crearBloque(780 * escaladoX1, (100 + (100 * 5)) * escaladoY1, (780 + 100) * escaladoX1, (150 + (100 * 5)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
             ptrbloques nuevo2 = crearBloque(x3 * escaladoX1, (y1 + (100 * 0)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
             ptrbloques nuevo33 = crearBloque(x3 * escaladoX1, (y1 + (100 * 3)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 3)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
             ptrbloques nuevos44 = crearBloque(x3 * escaladoX1, (y1 + (150)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (150)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
+            agregarBloques(nuevoz);
+            agregarBloques(nuevoz1);
             agregarBloques(nuevo2);
             agregarBloques(nuevo33);
             agregarBloquesvivos(nuevos44);
@@ -1073,10 +1165,18 @@ void iniciarnivel2(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
             x3 = 480;
             multiplicador = 1;
             for (int i = 0; i < 3; i++) {
-                ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
-                ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
-                agregarBloquesvivos(nuevos);
-                agregarBloquesvivos(nuevos1);
+                if (i == 1) {
+                    ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                    ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                    agregarBloques(nuevos);
+                    agregarBloques(nuevos1);
+                }
+                else {
+                    ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
+                    ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
+                    agregarBloquesvivos(nuevos);
+                    agregarBloquesvivos(nuevos1);
+                }
                 multiplicador++;
             }
             ptrbloques nuevos4 = crearBloque(((x3)+(150 * 1)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 1)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
@@ -1090,6 +1190,109 @@ void iniciarnivel2(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
         abrircompuerta();
         perdidavida(fuente);
 }
+
+void iniciarnivel3(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento) {
+    srand(time(0));
+    ALLEGRO_BITMAP* imagen = al_load_bitmap("sprites/backgrounds/3.png");
+    if (!imagen) {
+        al_draw_filled_rectangle(anchurainicio, 50 * escaladoY1, anchurafinal, 1000 * escaladoY1, al_map_rgb(0, 0, 155));
+    }
+    else
+    {
+        al_draw_scaled_bitmap(imagen, 0, 0, al_get_bitmap_width(imagen), al_get_bitmap_height(imagen), anchurainicio, 50 * escaladoY1, anchurafinal - anchurainicio,
+            (1000 * escaladoY1) - (50 * escaladoY1), 0);
+        cambiarbackground(imagen);
+
+    }
+
+    al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 300 * escaladoY1, 0, "Puntos");
+    al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 350 * escaladoY1, 0, to_string(puntos).c_str());
+    al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 400 * escaladoY1, 0, "Vidas");
+    al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 450 * escaladoY1, 0, to_string(vidas).c_str());
+    if (juegoPerdido && vidas > 0 && !mostrarmensaje) {
+        vidas = vidas - 1;
+        hazperdidounavida();
+    }
+    else if (!mostrarmensaje) {
+        paleta(coladeeventos, evento, fuente);
+    }
+    if (juegoPerdido || !iniciadoprimeravez) {
+        elementonivel = 1.0;
+        liberarBolas();
+        liberarBloques();
+        liberarBloquesvidas();
+        listabloquesvivos = nullptr;
+        liberarPoderes();
+        liberarCapsulas();
+        int x1 = 480;
+        int x2 = 630;
+        int x3 = 780;
+        int x4 = 930;
+        int x5 = 1080;
+        int y1 = 200;
+        int y2 = 250;
+        int multiplicador = 0;
+        for (int i = 0; i < 4; i++) {
+            ptrbloques nuevo = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo3 = crearBloque(x4 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x4 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo4 = crearBloque(x5 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x5 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            if (i == 0 || i == 3) {
+                agregarBloques(nuevo1);
+                agregarBloques(nuevo3);
+            }
+            else {
+                agregarBloques(nuevo);
+                agregarBloques(nuevo1);
+                agregarBloques(nuevo3);
+                agregarBloques(nuevo4);
+            }
+            multiplicador++;
+        }
+        ptrbloques nuevoz = crearBloque(780 * escaladoX1, (100 + (100 * 0)) * escaladoY1, (780 + 100) * escaladoX1, (150 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+        ptrbloques nuevoz1 = crearBloque(780 * escaladoX1, (100 + (100 * 5)) * escaladoY1, (780 + 100) * escaladoX1, (150 + (100 * 5)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+        ptrbloques nuevo2 = crearBloque(x3 * escaladoX1, (y1 + (100 * 0)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+        ptrbloques nuevo33 = crearBloque(x3 * escaladoX1, (y1 + (100 * 3)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 3)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+        ptrbloques nuevos44 = crearBloque(x3 * escaladoX1, (y1 + (150)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (150)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(85, 45, 85));
+        agregarBloques(nuevoz);
+        agregarBloques(nuevoz1);
+        agregarBloques(nuevo2);
+        agregarBloques(nuevo33);
+        agregarBloquesvivos(nuevos44);
+
+        x1 = 380;
+        x2 = 1180;
+        y1 = 150;
+        y2 = 200;
+        x3 = 480;
+        multiplicador = 1;
+        for (int i = 0; i < 3; i++) {
+            if (i == 1) {
+                ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+                agregarBloques(nuevos);
+                agregarBloques(nuevos1);
+            }
+            else {
+                ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(85, 45, 85));
+                ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(85, 45, 85));
+                agregarBloquesvivos(nuevos);
+                agregarBloquesvivos(nuevos1);
+            }
+            multiplicador++;
+        }
+        ptrbloques nuevos4 = crearBloque(((x3)+(150 * 1)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 1)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(85, 45, 85));
+        ptrbloques nuevos5 = crearBloque(((x3)+(150 * 3)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 3)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(85, 45, 85));
+        agregarBloquesvivos(nuevos4);
+        agregarBloquesvivos(nuevos5);
+        iniciadoprimeravez = true;
+    }
+    dibujarCapsulas();
+    manejarPoderes();
+    abrircompuerta();
+    perdidavida(fuente);
+}
+
 
 int plataforma_x2 = 35;
 int plataforma_x3 = 1835;
@@ -1135,6 +1338,7 @@ void paletas(int cual, ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& event
 void iniciarduojugadores(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento) {
 
     ALLEGRO_BITMAP* imagen = al_load_bitmap("sprites/backgrounds/20.png");
+
         // Definir el punto de rotación en el centro de la imagen
     float centro_x = al_get_bitmap_width(imagen) / 2;
     float centro_y = al_get_bitmap_height(imagen) / 2;

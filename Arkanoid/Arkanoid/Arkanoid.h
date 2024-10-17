@@ -17,12 +17,18 @@
 #include <windows.h>
 extern ALLEGRO_FONT* fuente;
 extern ALLEGRO_COLOR color_actual;
+extern bool nivel1;
+extern bool nivel2;
+extern bool nivel3;
 extern float escaladoX;
 extern float escaladoY;
 extern float tiempo;
 extern int puntos;
 extern int puntosreales;
 extern int frame;
-#include "resource.h"
+extern int frames;
+extern int random1;
+extern int random2;
+extern int random3;
 float devolverx();
 float devolvery();

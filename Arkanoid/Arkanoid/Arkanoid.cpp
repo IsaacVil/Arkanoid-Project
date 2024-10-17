@@ -27,10 +27,15 @@ bool nivel2 = false;
 bool nivel3 = false;
 bool transicion1 = false;
 bool transicion2 = false;
+bool transicion3 = false;
 bool top5 = false;
 float tiempo = 0.0;
 int opcion = 0;
 int puntosreales = 0;
+int random1;
+int random2;
+int random3;
+int frames;
 bool musicadetenida = false;
 int frame = 0;
 float tiempo_frame = 0.0;
@@ -42,6 +47,7 @@ bool duojugadores = false;
 int puntos = 0;
 double tiempomensajetrans1 = 0;
 double tiempomensajetrans2 = 0;
+double tiempomensajetrans3 = 0;
 ALLEGRO_FONT* fuente = nullptr;
 ALLEGRO_TIMER* temporizador_bola = nullptr;
 ALLEGRO_TIMER* temporizadorcompuerta = nullptr;
@@ -146,8 +152,12 @@ int main() {
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        random1 = rand() % 5;
+        random2 = rand() % 9;
+        random3 = rand() % 12;
+
         al_draw_tinted_bitmap(background1, al_map_rgba_f(150, 120, 150, 1.0f), 0, 0, 0);
-        int frames = frame * 2;
+        frames = frame * 2;
         if (frames == 20 || frames == 21 || frames == 22 || frames == 23 || frames == 24 || frames == 25 || frames == 26 || frames == 27) {
             al_draw_tinted_bitmap(background1, al_map_rgba_f(125, 75, 125, 1.0f), 0, 0, 0);
         }
@@ -212,13 +222,12 @@ int main() {
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
-
+        tiempo += 1.0 / FPS;
         if (menu) ////////////////////////////////////////////MENU////////////////////////////////////////////
         {
             juegoPerdido = false;
             vidas = 3;
             activoespera = true;
-            tiempo += 1.0 / FPS;
             color_actual = colorarcoiris(tiempo);
             al_draw_text(fuentetitulo, color_actual, 472 * escaladoX, 250 * escaladoY, 0, "ARKANOID");
             al_draw_text(fuentetitulo, color_actual, 475 * escaladoX, 250 * escaladoY, 0, "ARKANOID");
@@ -323,12 +332,13 @@ int main() {
             if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
                 switch (evento.keyboard.keycode) {
                 case ALLEGRO_KEY_ENTER:
-                    if (opcion == 0 || opcion == 2) {
+                    if (opcion == 0) {
                         menu = false;
                         niveles = false;
                         duojugadores = false;
                         nivel1 = true;
                         nivel2 = false;
+                        nivel3 = false;
                         opcion = 0;
                     }
                     if (opcion == 1) {
@@ -337,6 +347,16 @@ int main() {
                         duojugadores = false;
                         nivel1 = false;
                         nivel2 = true;
+                        nivel3 = false;
+                        opcion = 0;
+                    }
+                    if (opcion == 2) {
+                        menu = false;
+                        niveles = false;
+                        duojugadores = false;
+                        nivel1 = false;
+                        nivel2 = false;
+                        nivel3 = true;
                         opcion = 0;
                     }
                     break;
@@ -471,6 +491,26 @@ int main() {
                 al_stop_sample(&id_musica);
                 musicadetenida = true;
                 musicajuego = false;
+            }
+        }
+        else if (nivel3) {
+            iniciarnivel3(fuente, temporizador_bola, coladeevento, evento);
+            if (!quedanvidas()) {
+                nivel3 = false;
+                menu = true;
+                iniciadoprimeravez = false;
+            }
+            if (!quedanbloques()) {
+                nivel1 = false;
+                nivel3 = false;
+                nivel2 = false;
+                transicion3 = true;
+                tiempomensajetrans3 = al_get_time();
+                bolaLanzada = false;
+                al_stop_sample(&id_musica);
+                musicadetenida = true;
+                musicajuego = false;
+                iniciadoprimeravez = false;
             }
         }
         al_flip_display();
