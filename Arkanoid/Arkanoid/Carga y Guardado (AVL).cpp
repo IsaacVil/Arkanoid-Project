@@ -39,6 +39,9 @@ abbptr nodo(int codigo, int totalbolas, int bolasreb, int bolasper, int objetosd
 
 void RotarDerecha(abbptr& raiz)
 {
+    if (raiz->izquierdo == nullptr) // Verificar si hay un hijo derecho antes de continuar
+        return;
+
     abbptr copiaizquierda = raiz->izquierdo; //Copiamos al nodo izquierdo
     abbptr hijodeizq = copiaizquierda->derecho; //Copiamos al nodo derecho del nodo izquierdo (porque aqui va a caer la raiz original)
 
@@ -55,6 +58,9 @@ void RotarDerecha(abbptr& raiz)
 
 void RotarIzquierda(abbptr& raiz)
 {
+    if (raiz->derecho == nullptr) // Verificar si hay un hijo derecho antes de continuar
+        return;
+
     abbptr copiaderecha = raiz->derecho;
     abbptr hijodeder = copiaderecha->izquierdo;
 
@@ -215,21 +221,22 @@ void cargarDatosUsuarios(abbptr& arbol) {
     const char* nombreArchivo = "top5\\puntuaciones.txt";
     FILE* archivo = nullptr;
 
-    if (fopen_s(&archivo, nombreArchivo, "r") != 0) {
+    if (fopen_s(&archivo, nombreArchivo, "r+") != 0) {
         arbol = nullptr;
         return;
     }
+    else {
+        int codigo, totalbolas, bolasreb, bolasper, objetosdestruidos;
+        char nombre[10];
 
-    int codigo, totalbolas, bolasreb, bolasper, objetosdestruidos;
-    char nombre[10];
+        while (fscanf_s(archivo, "%d ,%9[^,] ,%d ,%d ,%d ,%d\n", &codigo, nombre, (unsigned)_countof(nombre), &totalbolas, &bolasreb, &bolasper, &objetosdestruidos) != EOF) {
+            string nombreStr(nombre);
+            abbptr nuevo = nodo(codigo, totalbolas, bolasreb, bolasper, objetosdestruidos, nombreStr);
+            insertaravl(arbol, nuevo);
+        }
 
-    while (fscanf_s(archivo, "%d ,%9[^,] ,%d ,%d ,%d ,%d\n", &codigo, nombre, (unsigned)_countof(nombre), &totalbolas, &bolasreb, &bolasper, &objetosdestruidos) != EOF) {
-        string nombreStr(nombre);
-        abbptr nuevo = nodo(codigo, totalbolas, bolasreb, bolasper, objetosdestruidos, nombreStr);
-        insertaravl(arbol, nuevo);
+        fclose(archivo);
     }
-
-    fclose(archivo);
 }
 
 void completarConNullptr(vector<abbptr>& nodos) {
