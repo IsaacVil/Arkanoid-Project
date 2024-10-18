@@ -96,6 +96,7 @@ int main() {
     ALLEGRO_BITMAP* iceworld = al_load_bitmap("sprites/iceworld.png");
     ALLEGRO_BITMAP* galaxy = al_load_bitmap("sprites/galaxy.png");
     ALLEGRO_BITMAP* blackhole = al_load_bitmap("sprites/blackhole.png");
+    ALLEGRO_BITMAP* totoro = al_load_bitmap("sprites/totoro.png");
     ALLEGRO_BITMAP* world = al_load_bitmap("sprites/world.png");
     ALLEGRO_BITMAP* world2 = al_load_bitmap("sprites/world2.png");
     ALLEGRO_BITMAP* mundo1 = al_load_bitmap("sprites/nivel1.png");
@@ -148,6 +149,7 @@ int main() {
     ALLEGRO_SAMPLE* musicanivel2 = al_load_sample("music/nivel2.ogg");
     ALLEGRO_SAMPLE* musicanivel3 = al_load_sample("music/nivel3.ogg");
     ALLEGRO_SAMPLE* musicatop5 = al_load_sample("music/top5.ogg");
+    ALLEGRO_SAMPLE* winners = al_load_sample("music/winners.ogg");
     ALLEGRO_SAMPLE* vidaperdidamusica = al_load_sample("music/vidaperdida.ogg");
     ALLEGRO_SAMPLE* victorykir = al_load_sample("music/victorykir.ogg");
     ALLEGRO_SAMPLE_ID id_musica;
@@ -244,6 +246,11 @@ int main() {
             else if (musicadetenida && nivel3) {
                 al_stop_sample(&id_musica);
                 al_play_sample(musicanivel3, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+                musicadetenida = false;
+            }
+            else if (musicadetenida && transicion3) {
+                al_stop_sample(&id_musica);
+                al_play_sample(winners, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
                 musicadetenida = false;
             }
             else if (musicadetenida && top5) {
@@ -625,6 +632,50 @@ int main() {
                 musicadetenida = true;
                 musicajuego = false;
                 iniciadoprimeravez = false;
+            }
+        }
+        else if (transicion3 && !menu) {
+            if (al_get_time() - tiempomensajetrans3 <= 37.0f) {
+                int nombre_ancho = al_get_text_width(fuentetitulo, jugadoractual->nombre.c_str());
+                float x_centrada = (952 * escaladoX) - nombre_ancho / 2;
+                al_draw_text(fuentetitulo, al_map_rgb(215, 215, 255), x_centrada, 100 * escaladoY, 0, jugadoractual->nombre.c_str());
+                al_draw_text(fuente, al_map_rgb(215, 215, 255), 602 * escaladoX, 220 * escaladoY, 0, "GRACIAS POR JUGAR");
+                al_draw_text(fuentesubtitulo, al_map_rgb(215, 215, 255), 322 * escaladoX, 320 * escaladoY, 0, "El piloto de la nave logro vencer a todos los enemigos y bloques");
+                al_draw_text(fuentesubtitulo, al_map_rgb(215, 215, 255), 348 * escaladoX, 390 * escaladoY, 0, "Su perro lo espera en casa, sin saber que el no podra volver");
+                al_draw_text(fuentesubtitulo, al_map_rgb(215, 215, 255), 338 * escaladoX, 460 * escaladoY, 0, "Un hombre solitario en el espacio sin manera de volver, el era");
+                al_draw_text(fuentesubtitulo, al_map_rgb(215, 215, 255), 322 * escaladoX, 530 * escaladoY, 0, "El sujeto perfecto sin ninguna conexion emocional, excepto por el");
+                al_draw_text(fuentesubtitulo, al_map_rgb(215, 215, 255), 645 * escaladoX, 600 * escaladoY, 0, "Esperemos tenga bastante comida...");
+                
+
+
+                int totalxxx = 24;
+                int frames_por_fila100 = al_get_bitmap_width(totoro) / totalxxx;
+                int total_frames = frames_por_fila100 * (al_get_bitmap_height(totoro) / totalxxx); // Calcula el total de frames disponibles
+
+                frame = frame % total_frames; // Asegúrate de que el frame esté dentro del rango válido
+
+                int frameX100 = (frame % frames_por_fila100) * totalxxx;
+                int frameY100 = (frame / frames_por_fila100) * totalxxx;
+
+                int nuevo_ancho = totalxxx * 14;
+                int nuevo_alto = totalxxx * 14;
+
+                al_draw_scaled_bitmap(totoro, frameX100, frameY100, totalxxx, totalxxx, 775 * escaladoX, 670 * escaladoY, nuevo_ancho, nuevo_alto, 0);
+
+
+
+
+            }
+            else {
+                transicion3 = false;
+                nivel1 = false;
+                nivel2 = false;
+                nivel3 = false;
+                menu = true;
+                puntosreales = puntos;
+                al_stop_sample(&id_musica);
+                musicadetenida = false;
+                musicajuego = false;
             }
         }
         else if (top5) {

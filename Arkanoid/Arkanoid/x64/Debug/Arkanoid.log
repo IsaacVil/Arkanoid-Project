@@ -1,8 +1,2 @@
 ﻿  Arkanoid.cpp
-  Assets.cpp
-C:\Users\taqui\OneDrive\Escritorio\Proyecto 1A\Arkanoid\Arkanoid\Assets.cpp(117,20): warning C4101: 'a': unreferenced local variable
-  Carga y Guardado (AVL).cpp
-  Nivel1.cpp
-  dosjugadores.cpp
-  Generating Code...
   Arkanoid.vcxproj -> C:\Users\taqui\OneDrive\Escritorio\Proyecto 1A\Arkanoid\x64\Debug\Arkanoid.exe
