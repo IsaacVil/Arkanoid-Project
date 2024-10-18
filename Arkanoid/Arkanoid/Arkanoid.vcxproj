@@ -181,6 +181,7 @@
   <ItemGroup>
     <ClInclude Include="Arkanoid.h" />
     <ClInclude Include="Assets.h" />
+    <ClInclude Include="Carga y Guardado (AVL).h" />
     <ClInclude Include="dosjugadores.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="Nivel1.h" />
@@ -189,6 +190,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Arkanoid.cpp" />
+    <ClCompile Include="Carga y Guardado %28AVL%29.cpp" />
     <ClCompile Include="dosjugadores.cpp" />
     <ClCompile Include="Nivel1.cpp" />
     <ClCompile Include="Assets.cpp" />

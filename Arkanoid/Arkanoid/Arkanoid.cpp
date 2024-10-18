@@ -6,11 +6,14 @@
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_image.h>
 #include "Nivel1.h"
+#include <sapi.h>
+#include "Carga y Guardado (AVL).h"
 #include "Assets.h"
 #include "resource.h"
 #include <string>
 #include <iostream>
 #include <windows.h>
+#define MAX_NOMBRE 10
 using namespace std;
 const float FPS = 60.0;
 const int ancho = GetSystemMetrics(SM_CXSCREEN);
@@ -19,8 +22,9 @@ const int BASE_WIDTH = 1920;
 const int BASE_HEIGHT = 1000;
 float escaladoX = (float)ancho / BASE_WIDTH;
 float escaladoY = (float)altura / BASE_HEIGHT;
+bool nombre = true;
 bool salida = false;
-bool menu = true;
+bool menu = false;
 bool niveles = false;
 bool nivel1 = false;
 bool nivel2 = false;
@@ -28,7 +32,11 @@ bool nivel3 = false;
 bool transicion1 = false;
 bool transicion2 = false;
 bool transicion3 = false;
+bool personalpuntos = false;
+bool mensajenombre = false;
+bool nombretts = false;
 bool top5 = false;
+double tiempotts;
 float tiempo = 0.0;
 int opcion = 0;
 int puntosreales = 0;
@@ -36,6 +44,11 @@ int random1;
 int random2;
 int random3;
 int frames;
+int bolastotal = 0;
+int bolasre = 0;
+int bolasper = 0;
+int objetosgolpeados = 0;
+int tiempomensajenombre;
 bool musicadetenida = false;
 int frame = 0;
 float tiempo_frame = 0.0;
@@ -48,10 +61,18 @@ int puntos = 0;
 double tiempomensajetrans1 = 0;
 double tiempomensajetrans2 = 0;
 double tiempomensajetrans3 = 0;
+char nombreusuario2[MAX_NOMBRE] = "";
+char nombreusuario[MAX_NOMBRE] = "_________";
+int longitud_nombre = 0;
+bool dibujar = true;
+abbptr jugadoractual = nullptr;
 ALLEGRO_FONT* fuente = nullptr;
 ALLEGRO_TIMER* temporizador_bola = nullptr;
 ALLEGRO_TIMER* temporizadorcompuerta = nullptr;
 ALLEGRO_COLOR color_actual;
+abbptr puntuaciones = nullptr;
+abbptr top5avl = nullptr;
+vector<abbptr> top5vector;
 float devolverx() {
     return escaladoX;
 }
@@ -97,6 +118,7 @@ int main() {
 
     ALLEGRO_FONT* fuentetitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 120 * escaladoX, 0);
     ALLEGRO_FONT* fuentesubtitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 20 * escaladoX, 0);
+    ALLEGRO_FONT* fuentenombre = al_load_ttf_font("font/ARCADE_I.Ttf", 55 * escaladoX, 0);
 
     ALLEGRO_TIMER* timer = al_create_timer(1.0 / FPS);
     temporizador_bola = al_create_timer(5.0);
@@ -125,10 +147,16 @@ int main() {
     ALLEGRO_SAMPLE* musicanivel1 = al_load_sample("music/nivel1.ogg");
     ALLEGRO_SAMPLE* musicanivel2 = al_load_sample("music/nivel2.ogg");
     ALLEGRO_SAMPLE* musicanivel3 = al_load_sample("music/nivel3.ogg");
+    ALLEGRO_SAMPLE* musicatop5 = al_load_sample("music/top5.ogg");
     ALLEGRO_SAMPLE* vidaperdidamusica = al_load_sample("music/vidaperdida.ogg");
     ALLEGRO_SAMPLE* victorykir = al_load_sample("music/victorykir.ogg");
     ALLEGRO_SAMPLE_ID id_musica;
     al_play_sample(musicamenu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+    cargarDatosUsuarios(puntuaciones);
+
+    HRESULT hr = CoInitialize(NULL);
+    ISpVoice* pVoice = NULL;
+    hr = CoCreateInstance(CLSID_SpVoice, NULL, CLSCTX_ALL, IID_ISpVoice, (void**)&pVoice);
 
     while (!salida) {
         ALLEGRO_EVENT evento;
@@ -174,7 +202,7 @@ int main() {
             al_draw_tinted_bitmap(background1, al_map_rgba_f(120, 95, 120, 1.0f), 0, 0, 0);
         }
 
-        if (menu || niveles) {
+        if (menu || niveles || nombre) {
             if (!musicadetenida || musicajuego) {
                 al_stop_sample(&id_musica);
                 al_play_sample(musicaniveles, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
@@ -218,12 +246,91 @@ int main() {
                 al_play_sample(musicanivel3, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
                 musicadetenida = false;
             }
+            else if (musicadetenida && top5) {
+                al_stop_sample(&id_musica);
+                al_play_sample(musicatop5, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+                musicadetenida = false;
+            }
         }
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         
+        
         tiempo += 1.0 / FPS;
-        if (menu) ////////////////////////////////////////////MENU////////////////////////////////////////////
+        if (nombre) {
+            color_actual = colorarcoiris(tiempo);
+
+            // Dibujar el título estático "ESCRIBE TU NOMBRE" en varias posiciones para dar efecto de sombra
+            al_draw_text(fuentenombre, color_actual, 452 * escaladoX, 120 * escaladoY, 0, "ESCRIBE TU NOMBRE");
+            al_draw_text(fuentenombre, color_actual, 455 * escaladoX, 120 * escaladoY, 0, "ESCRIBE TU NOMBRE");
+            al_draw_text(fuentenombre, al_map_rgb(255, 255, 255), 457 * escaladoX, 120 * escaladoY, 0, "ESCRIBE TU NOMBRE");
+
+            al_draw_text(fuentenombre, color_actual, 402 * escaladoX, 920 * escaladoY, 0, "ENTER PARA CONTINUAR");
+            al_draw_text(fuentenombre, color_actual, 405 * escaladoX, 920 * escaladoY, 0, "ENTER PARA CONTINUAR");
+            al_draw_text(fuentenombre, al_map_rgb(255, 255, 255), 407 * escaladoX, 920 * escaladoY, 0, "ENTER PARA CONTINUAR");
+            // Manejar eventos
+            if (evento.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+                break; // Salir del bucle si se cierra la ventana
+            }
+            else if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
+                if (evento.keyboard.keycode == ALLEGRO_KEY_ENTER) {
+                    if (longitud_nombre == 0) {
+                        tiempomensajenombre = al_get_time(); // Inicializar el temporizador
+                        mensajenombre = true;
+                    }
+                    else {
+                        for (int i = 0; i < longitud_nombre; i++) {
+                            if (nombreusuario[i] == '_') {
+                                // Desplazar los caracteres hacia la izquierda
+                                for (int j = i; j < longitud_nombre - 1; j++) {
+                                    nombreusuario[j] = nombreusuario[j + 1];
+
+                                }
+                                longitud_nombre--; // Disminuir la longitud del nombre
+                                nombreusuario[longitud_nombre] = '\0'; // Agregar el terminador nulo
+                                i--; // Retroceder para verificar el nuevo carácter en esta posición
+                            }
+                        }
+                        nombre = false;
+                        menu = true;
+                        string nombrestringjugador(nombreusuario2);
+                        for (char& c : nombrestringjugador) {
+                            c = toupper(c);  
+                        }
+                        jugadoractual = nodo(puntosreales, bolastotal, bolasre, bolasper, objetosgolpeados, nombrestringjugador);
+                        insertaravl(puntuaciones, jugadoractual);
+                    }
+                }
+            }
+            else if (evento.type == ALLEGRO_EVENT_KEY_CHAR) {
+                if (longitud_nombre < MAX_NOMBRE - 1) {
+                    if (evento.keyboard.unichar >= 33 && evento.keyboard.unichar <= 126 && evento.keyboard.unichar != ' ' && evento.keyboard.unichar != '_' && evento.keyboard.unichar != ',') {
+                        nombreusuario[longitud_nombre] = (char)evento.keyboard.unichar;
+                        nombreusuario2[longitud_nombre] = (char)evento.keyboard.unichar;
+                        longitud_nombre++;
+                    }
+                }
+                // Manejar el retroceso (backspace)
+                if (evento.keyboard.keycode == ALLEGRO_KEY_BACKSPACE && longitud_nombre > 0) {
+                    longitud_nombre--;
+                    nombreusuario[longitud_nombre] = '_';
+                    nombreusuario2[longitud_nombre] = ' ';
+                }
+            }
+            if (mensajenombre) {
+                if (al_get_time() - tiempomensajenombre <= 3.0f) {
+                    al_draw_text(fuente, al_map_rgb(255, 255, 255), 270 * escaladoX, 720 * escaladoY, 0, "TIENES QUE ESCRIBIR MINIMO 1 LETRA");
+                }
+                else {
+                    mensajenombre = false;
+                }
+            }
+
+            al_draw_text(fuentetitulo, color_actual, 935, 460, ALLEGRO_ALIGN_CENTER, nombreusuario);
+            al_draw_text(fuentetitulo, color_actual, 937, 460, ALLEGRO_ALIGN_CENTER, nombreusuario);
+            al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 940, 460, ALLEGRO_ALIGN_CENTER, nombreusuario);
+        }
+        else if (menu) ////////////////////////////////////////////MENU////////////////////////////////////////////
         {
             juegoPerdido = false;
             vidas = 3;
@@ -239,20 +346,22 @@ int main() {
                     if (opcion == 0) {
                         menu = false;
                         niveles = true;
-                        opcion = 0;
                     }
                     else if (opcion == 1) {
                         menu = false;
                         duojugadores = true;
                         niveles = false;
                         top5 = false;
-                        opcion = 0;
                     }
                     else if (opcion == 2) {
                         menu = false;
+                        al_stop_sample(&id_musica);
+                        musicadetenida = true;
+                        musicajuego = false;
                         top5 = true;
-                        opcion = 0;
+                        top5vector = mostrarTop5(puntuaciones);
                     }
+                    opcion = 0;
                 case ALLEGRO_KEY_DOWN:
                 case ALLEGRO_KEY_S:
                     opcion = opcion + 1;
@@ -390,30 +499,12 @@ int main() {
             al_draw_scaled_bitmap(mundo3, frameX, frameY, 150, 150, 1200 * escaladoX, 383 * escaladoY, 150 * 1.8, 150 * 1.8, 0);
 
             if (opcion == 0) {
-                /*
-                frames_por_fila = al_get_bitmap_width(mundo1sel) / 90;
-                frameX = (frame % frames_por_fila) * 90;
-                frameY = (frame / frames_por_fila) * 90;
-                al_draw_scaled_bitmap(mundo1sel, frameX, frameY, 90, 90, 480, 440, 90 * 1.5, 90 * 1.5, 0);
-                */
                 al_draw_filled_triangle(530 * escaladoX, 644 * escaladoY, 560 * escaladoX, 644 * escaladoY, 545 * escaladoX, 623 * escaladoY, al_map_rgb(0, 0, 205));
             }
             else if (opcion == 1) {
-                /*
-                frames_por_fila = al_get_bitmap_width(mundo2sel) / 270;
-                frameX = (frame % frames_por_fila) * 270;
-                frameY = (frame / frames_por_fila) * 270;
-                al_draw_scaled_bitmap(mundo2sel, frameX, frameY, 270, 270, 775, 340, 270 * 1.3, 270 * 1.3, 0);
-                */
                 al_draw_filled_triangle(940 * escaladoX, 644 * escaladoY, 970 * escaladoX, 644 * escaladoY, 955 * escaladoX, 623 * escaladoY, al_map_rgb(0, 0, 205));
             }
             else if (opcion == 2) {
-                /*
-                /frames_por_fila = al_get_bitmap_width(mundo3sel) / 150;
-                frameX = (frame % frames_por_fila) * 150;
-                frameY = (frame / frames_por_fila) * 150;
-                al_draw_scaled_bitmap(mundo3sel, frameX, frameY, 150, 150, 1200, 383, 150 * 1.8, 150 * 1.8, 0);
-                */
                 al_draw_filled_triangle(1320 * escaladoX, 644 * escaladoY, 1350 * escaladoX, 644 * escaladoY, 1335 * escaladoX, 623 * escaladoY, al_map_rgb(0, 0, 205));
             }
 
@@ -437,6 +528,7 @@ int main() {
                 nivel2 = false;
                 nivel3 = false;
                 transicion1 = true;
+                puntosreales = puntos;
                 tiempomensajetrans1 = al_get_time();
                 bolaLanzada = false;
                 al_stop_sample(&id_musica);
@@ -446,8 +538,23 @@ int main() {
             }
         }
         else if (transicion1 && !nivel2) {
+            if (jugadoractual->codigo <= puntosreales) {
+                jugadoractual->codigo = puntosreales;
+                guardardatosusuarios(puntuaciones);
+            }
+            //AQUI VA PARA GUARDAR
             al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 300 * escaladoY, 0, "Haz Ganado el Nivel 1");
             al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 500 * escaladoY, 0, "Continuando al siguiente...");
+
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 600 * escaladoY, 0, to_string(jugadoractual->codigo).c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 700 * escaladoY, 0, jugadoractual->nombre.c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 845 * escaladoX, 600 * escaladoY, 0, to_string(jugadoractual->totalbolas).c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 645 * escaladoX, 700 * escaladoY, 0, to_string(jugadoractual->bolasreb).c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 645 * escaladoX, 600 * escaladoY, 0, to_string(jugadoractual->bolasper).c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 645 * escaladoX, 300 * escaladoY, 0, to_string(jugadoractual->objetosdestruidos).c_str());
+
+
+
             if (al_get_time() - tiempomensajetrans1 >= 6.0f) {
                 transicion1 = false;
                 nivel1 = false;
@@ -460,6 +567,7 @@ int main() {
             }
         }
         else if (nivel2) {
+            
             iniciarnivel2(fuente, temporizador_bola, coladeevento, evento);
             if (!quedanvidas()) {
                 nivel2 = false;
@@ -471,6 +579,7 @@ int main() {
                 nivel3 = false;
                 nivel2 = false;
                 transicion2 = true;
+                puntosreales = puntos;
                 tiempomensajetrans2 = al_get_time();
                 bolaLanzada = false;
                 al_stop_sample(&id_musica);
@@ -480,6 +589,11 @@ int main() {
             }
         }
         else if (transicion2 && !nivel3) {
+            if (jugadoractual->codigo <= puntosreales) {
+                jugadoractual->codigo = puntosreales;
+                guardardatosusuarios(puntuaciones);
+            }
+            //AQUI VA PARA GUARDAR
             al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 300 * escaladoY, 0, "Haz Ganado el Nivel 2");
             al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 500 * escaladoY, 0, "Continuando al siguiente...");
             if (al_get_time() - tiempomensajetrans2 >= 6.0f) {
@@ -513,9 +627,193 @@ int main() {
                 iniciadoprimeravez = false;
             }
         }
+        else if (top5) {
+            nombretts = false;
+            color_actual = colorarcoiris(tiempo);
+            if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
+                switch (evento.keyboard.keycode) {
+                case ALLEGRO_KEY_ENTER:
+                    if (opcion == 0 && top5vector[0] != nullptr) {
+                        top5 = false;
+                        personalpuntos = true;
+                        tiempotts = al_get_time();
+                        opcion = 0;
+                    }
+                    else if (opcion == 1 && top5vector[1] != nullptr) {
+                        top5 = false;
+                        personalpuntos = true;
+                        tiempotts = al_get_time();
+                        opcion = 1;
+                    }
+                    else if (opcion == 2 && top5vector[2] != nullptr) {
+                        top5 = false;
+                        personalpuntos = true;
+                        tiempotts = al_get_time();
+                        opcion = 2;
+                    }
+                    else if (opcion == 3 && top5vector[3] != nullptr) {
+                        top5 = false;
+                        personalpuntos = true;
+                        tiempotts = al_get_time();
+                        opcion = 3;
+                    }
+                    else if (opcion == 4 && top5vector[4] != nullptr) {
+                        top5 = false;
+                        personalpuntos = true;
+                        tiempotts = al_get_time();
+                        opcion = 4;
+                    }
+                    break;
+                case ALLEGRO_KEY_DOWN:
+                case ALLEGRO_KEY_S:
+                    opcion = opcion + 1;
+                    if (opcion % 5 == 0) {
+                        opcion = 0;
+                    }
+                    break;
+                case ALLEGRO_KEY_UP:
+                case ALLEGRO_KEY_W:
+                    opcion = opcion - 1;
+                    if (opcion < 0) {
+                        opcion = 4;
+                    }
+                    break;
+                case ALLEGRO_KEY_ESCAPE:
+                    top5 = false;
+                    opcion = 0;
+                    al_stop_sample(&id_musica);
+                    musicadetenida = false;
+                    musicajuego = false;
+                    menu = true;
+                    break;
+                }
+            }
+            
+            al_draw_text(fuente, color_actual, 801 * escaladoX, 100 * escaladoY, 0, "TOP 5");
+            al_draw_text(fuente, color_actual, 803 * escaladoX, 100 * escaladoY, 0, "TOP 5");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 805 * escaladoX, 100 * escaladoY, 0, "TOP 5");
+            if (top5vector[0] != nullptr) {
+                if (opcion == 0) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 300 * escaladoY, 0, top5vector[0]->nombre.c_str());
+                    al_draw_text(fuente, color_actual, 1383 * escaladoX, 300 * escaladoY, 0, to_string(top5vector[0]->codigo).c_str());
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 300 * escaladoY, 0, top5vector[0]->nombre.c_str());
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 1385 * escaladoX, 300 * escaladoY, 0, to_string(top5vector[0]->codigo).c_str());
+            }
+            else {
+                if (opcion == 0) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 300 * escaladoY, 0, "WAITING FOR CHALLENGER");
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 300 * escaladoY, 0, "WAITING FOR CHALLENGER");
+            }
+            if (top5vector[1] != nullptr) {
+                if (opcion == 1) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 400 * escaladoY, 0, top5vector[1]->nombre.c_str());
+                    al_draw_text(fuente, color_actual, 1383 * escaladoX, 400 * escaladoY, 0, to_string(top5vector[1]->codigo).c_str());
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 400 * escaladoY, 0, top5vector[1]->nombre.c_str());
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 1385 * escaladoX, 400 * escaladoY, 0, to_string(top5vector[1]->codigo).c_str());
+            }
+            else {
+                if (opcion == 1) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 400 * escaladoY, 0, "WAITING FOR CHALLENGER");
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 400 * escaladoY, 0, "WAITING FOR CHALLENGER");
+            }
+            if (top5vector[2] != nullptr) {
+                if (opcion == 2) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 500 * escaladoY, 0, top5vector[2]->nombre.c_str());
+                    al_draw_text(fuente, color_actual, 1383 * escaladoX, 500 * escaladoY, 0, to_string(top5vector[2]->codigo).c_str());
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 500 * escaladoY, 0, top5vector[2]->nombre.c_str());
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 1385 * escaladoX, 500 * escaladoY, 0, to_string(top5vector[2]->codigo).c_str());
+            }
+            else {
+                if (opcion == 2) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 500 * escaladoY, 0, "WAITING FOR CHALLENGER");
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 500 * escaladoY, 0, "WAITING FOR CHALLENGER");
+            }
+            if (top5vector[3] != nullptr) {
+                if (opcion == 3) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 600 * escaladoY, 0, top5vector[3]->nombre.c_str());
+                    al_draw_text(fuente, color_actual, 1383 * escaladoX, 600 * escaladoY, 0, to_string(top5vector[3]->codigo).c_str());
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 600 * escaladoY, 0, top5vector[3]->nombre.c_str());
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 1385 * escaladoX, 600 * escaladoY, 0, to_string(top5vector[3]->codigo).c_str());
+            }
+            else {
+                if (opcion == 3) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 600 * escaladoY, 0, "WAITING FOR CHALLENGER");
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 600 * escaladoY, 0, "WAITING FOR CHALLENGER");
+            }
+            if (top5vector[4] != nullptr) {
+                if (opcion == 4) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 700 * escaladoY, 0, top5vector[4]->nombre.c_str());
+                    al_draw_text(fuente, color_actual, 1383 * escaladoX, 700 * escaladoY, 0, to_string(top5vector[4]->codigo).c_str());
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 700 * escaladoY, 0, top5vector[4]->nombre.c_str());
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 1385 * escaladoX, 700 * escaladoY, 0, to_string(top5vector[4]->codigo).c_str());
+            }
+            else {
+                if (opcion == 4) {
+                    al_draw_text(fuente, color_actual, 352 * escaladoX, 700 * escaladoY, 0, "WAITING FOR CHALLENGER");
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 355 * escaladoX, 700 * escaladoY, 0, "WAITING FOR CHALLENGER");
+            }
+            al_draw_text(fuente, color_actual, 362 * escaladoX, 900 * escaladoY, 0, "PRESIONE ENTER PARA MOSTRAR MAS");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 365 * escaladoX, 900 * escaladoY, 0, "PRESIONE ENTER PARA MOSTRAR MAS");
+        }
+        if (personalpuntos) {
+            color_actual = colorarcoiris(tiempo);
+            if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
+                switch (evento.keyboard.keycode) {
+                case ALLEGRO_KEY_ESCAPE:
+                    personalpuntos = false;
+                    top5 = true;
+                    opcion = 0;
+                    break;
+                }
+            }
+            int nombre_ancho = al_get_text_width(fuentetitulo, top5vector[opcion]->nombre.c_str());
+            float x_centrada = (952 * escaladoX) - nombre_ancho / 2;
+
+            // Dibujar el nombre centrado
+            al_draw_text(fuentetitulo, color_actual, x_centrada, 100 * escaladoY, 0, top5vector[opcion]->nombre.c_str());
+            al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), x_centrada + 3, 100 * escaladoY, 0, top5vector[opcion]->nombre.c_str());
+
+            al_draw_text(fuente, color_actual, 302 * escaladoX, 300 * escaladoY, 0, "PUNTUAJE MAXIMO");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 305 * escaladoX, 300 * escaladoY, 0, "PUNTUAJE MAXIMO");
+            al_draw_text(fuente, color_actual, 1332 * escaladoX, 300 * escaladoY, 0, to_string(top5vector[opcion]->codigo).c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 1335 * escaladoX, 300 * escaladoY, 0, to_string(top5vector[opcion]->codigo).c_str());
+            al_draw_text(fuente, color_actual, 302 * escaladoX, 400 * escaladoY, 0, "BOLAS LANZADAS");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 305 * escaladoX, 400 * escaladoY, 0, "BOLAS LANZADAS");
+            al_draw_text(fuente, color_actual, 1332 * escaladoX, 400 * escaladoY, 0, to_string(top5vector[opcion]->totalbolas).c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 1335 * escaladoX, 400 * escaladoY, 0, to_string(top5vector[opcion]->totalbolas).c_str());
+            al_draw_text(fuente, color_actual, 302 * escaladoX, 500 * escaladoY, 0, "BOLAS REBOTADAS");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 305 * escaladoX, 500 * escaladoY, 0, "BOLAS REBOTADAS");
+            al_draw_text(fuente, color_actual, 1332 * escaladoX, 500 * escaladoY, 0, to_string(top5vector[opcion]->bolasreb).c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 1335 * escaladoX, 500 * escaladoY, 0, to_string(top5vector[opcion]->bolasreb).c_str());
+            al_draw_text(fuente, color_actual, 302 * escaladoX, 600 * escaladoY, 0, "BOLAS PERDIDAS");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 305 * escaladoX, 600 * escaladoY, 0, "BOLAS PERDIDAS");
+            al_draw_text(fuente, color_actual, 1332 * escaladoX, 600 * escaladoY, 0, to_string(top5vector[opcion]->bolasper).c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 1335 * escaladoX, 600 * escaladoY, 0, to_string(top5vector[opcion]->bolasper).c_str());
+            al_draw_text(fuente, color_actual, 302 * escaladoX, 700 * escaladoY, 0, "OBJETOS DESTRUIDOS");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 305 * escaladoX, 700 * escaladoY, 0, "OBJETOS DESTRUIDOS");
+            al_draw_text(fuente, color_actual, 1332 * escaladoX, 700 * escaladoY, 0, to_string(top5vector[opcion]->objetosdestruidos).c_str());
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 1335 * escaladoX, 700 * escaladoY, 0, to_string(top5vector[opcion]->objetosdestruidos).c_str());
+            if (!nombretts && al_get_time() - tiempotts >= 0.3 && opcion >= 0 && opcion <= 4) {
+                hr = pVoice->Speak(wstring(top5vector[opcion]->nombre.begin(), top5vector[opcion]->nombre.end()).c_str(), SPF_IS_XML, NULL);
+                nombretts = true;
+            }
+            al_draw_text(fuente, color_actual, 452 * escaladoX, 950 * escaladoY, 0, "PRESIONE ESC PARA SALIR");
+            al_draw_text(fuente, al_map_rgb(255, 255, 255), 455 * escaladoX, 950 * escaladoY, 0, "PRESIONE ESC PARA SALIR");
+        }
         al_flip_display();
     }
-
+    pVoice->Release();
+    CoUninitialize();
     al_destroy_font(fuente);
     al_destroy_timer(timer);
     al_destroy_event_queue(coladeevento);

@@ -36,6 +36,9 @@
     <ClInclude Include="dosjugadores.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Carga y Guardado (AVL).h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Arkanoid.cpp">
@@ -48,6 +51,9 @@
       <Filter>Header Files</Filter>
     </ClCompile>
     <ClCompile Include="dosjugadores.cpp">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Carga y Guardado %28AVL%29.cpp">
       <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>

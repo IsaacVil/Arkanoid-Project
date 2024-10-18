@@ -432,17 +432,20 @@ int achocado(ptrbola bola, ptrbloques bloque) {
     if (bola->x - bola->radio <= bloque->plataformax + margen && bola->x + bola->radio >= bloque->plataformax - margen &&
         bola->y >= bloque->plataformay && bola->y <= bloque->plataformaaltura &&
         bola->velocidadX > 0) {
+        jugadoractual->bolasreb += 1;
         return 1;
     }
     if (bola->x - bola->radio <= bloque->plataformaanchura + margen && bola->x + bola->radio >= bloque->plataformaanchura - margen &&
         bola->y >= bloque->plataformay && bola->y <= bloque->plataformaaltura &&
         bola->velocidadX < 0) {
+        jugadoractual->bolasreb += 1;
         return 1;
     }
 
     if (bola->y - bola->radio <= bloque->plataformay + margen && bola->y + bola->radio >= bloque->plataformay - margen &&
         bola->x >= bloque->plataformax && bola->x <= bloque->plataformaanchura &&
         bola->velocidadY > 0) {
+        jugadoractual->bolasreb += 1;
         return 2;
     }
 
@@ -450,6 +453,7 @@ int achocado(ptrbola bola, ptrbloques bloque) {
     if (bola->y - bola->radio <= bloque->plataformaaltura + margen && bola->y + bola->radio >= bloque->plataformaaltura - margen &&
         bola->x >= bloque->plataformax && bola->x <= bloque->plataformaanchura &&
         bola->velocidadY < 0) {
+        jugadoractual->bolasreb += 1;
         return 2;
     }
     return 0;
@@ -492,6 +496,7 @@ void manejarcolision(ptrbola& bola) {
 
         // Si el bloque ha sido golpeado hasta 0
         if (bloque->golpe <= 0) {
+            jugadoractual->objetosdestruidos += 1;
             if (anterior == nullptr) {
                 // El bloque a eliminar es el primero en la lista
                 listabloques = bloque->siguiente;
@@ -537,10 +542,11 @@ void manejarcolisionvivos(ptrbola& bola) {
 }
 
 void lanzarBolaDesdePlataforma(float plataforma_x, float plataforma_y, float plataforma_altura) {
-    if (!bolaLanzada) {
+    if (!bolaLanzada || true) {
         float velocidadX = (4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) + elementonivel * escaladoX1;
         float velocidadY = -5.0f - elementonivel * escaladoY1; // Lanza la bola hacia arriba
         ptrbola nuevabola = crearBola(plataforma_x, plataforma_y - plataforma_altura / 2.0 - 10.0f, velocidadX, velocidadY, 10.0f);
+        jugadoractual->totalbolas += 1;
         agregarBola(nuevabola); // 10.0f es el radio de la bola
         bolaLanzada = true; // Marca la bola como lanzada
     }
@@ -585,6 +591,7 @@ void actualizarBolas(float plataforma_x, float plataforma_y, float plataforma_an
             }
             actual = actual->siguiente; // Avanza al siguiente nodo
             delete Aux; // Libera memoria
+            jugadoractual->bolasper += 1;
         }
         else {
             anterior = actual;
@@ -717,6 +724,7 @@ void lanzarBolaDesdeOtra() {
     float velocidadY = (- 5.0f - elementonivel)* escaladoY1; // Lanza la bola hacia arriba
     ptrbola nuevabola = crearBola(listabola->x, listabola->y, velocidadX, listabola->velocidadY, 10.0f);
     ptrbola nuevabola2 = crearBola(listabola->x, listabola->y, velocidadX2, velocidadY, 10.0f);
+    jugadoractual->totalbolas += 2;
     agregarBola(nuevabola); // 10.0f es el radio de la bola
     agregarBola(nuevabola2);
 }
@@ -729,6 +737,7 @@ void lanzarBolaDesdeTODAS() {
         float velocidadY = (- 5.0f - elementonivel) * escaladoY1; // Lanza la bola hacia arriba
         ptrbola nuevabola = crearBola(aux->x, aux->y, velocidadX, aux->velocidadY, 10.0f);
         ptrbola nuevabola2 = crearBola(aux->x, aux->y, velocidadX2, velocidadY, 10.0f);
+        jugadoractual->totalbolas += 2;
         agregarBola(nuevabola); // 10.0f es el radio de la bola
         agregarBola(nuevabola2);
         aux = aux->siguiente;
@@ -825,8 +834,13 @@ void paleta(ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento, ALLEGRO_
         al_draw_scaled_bitmap(imagenPlataforma, 0, 0, al_get_bitmap_width(imagenPlataforma), al_get_bitmap_height(imagenPlataforma), plataforma_x - plataforma_anchura / 2.0, 
         plataforma_y - plataforma_altura / 2.0, plataforma_anchura, plataforma_altura,  0);                                     
     }
-    if (!bolaLanzada) {
+    if (!bolaLanzada && (!(nivel3))) {
+        al_draw_filled_circle(plataforma_x, plataforma_y - plataforma_altura / 2.0, 13.0f, al_map_rgb(0, 0, 0));
         al_draw_filled_circle(plataforma_x, plataforma_y - plataforma_altura / 2.0, 10.0f, al_map_rgb(255, 0, 0)); // Color rojo para la bola
+    }
+    else if (!bolaLanzada && ((nivel3))) {
+        al_draw_filled_circle(plataforma_x, plataforma_y - plataforma_altura / 2.0, 13.0f, al_map_rgb(255, 255, 255));
+        al_draw_filled_circle(plataforma_x, plataforma_y - plataforma_altura / 2.0, 10.0f, colorarcoiris(tiempo)); // Color rojo para la bola
     }
     if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
         switch (evento.keyboard.keycode) {
@@ -837,6 +851,9 @@ void paleta(ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento, ALLEGRO_
             plataforma_x += velocidad;
             break;
         case ALLEGRO_KEY_ENTER:
+            lanzarBolaDesdePlataforma(plataforma_x, plataforma_y, plataforma_altura);
+            break;
+        case ALLEGRO_KEY_SPACE:
             lanzarBolaDesdePlataforma(plataforma_x, plataforma_y, plataforma_altura);
             break;
         }
@@ -1056,7 +1073,7 @@ void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
             }
             multiplicador++;
         }
-
+        ptrbloques nuevo22 = crearBloque(x3 * escaladoX1, (y1 + (100 * 0)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
         ptrbloques nuevo2 = crearBloque(x3 * escaladoX1, (y1 + (100 * 0)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
         ptrbloques nuevo33 = crearBloque(x3 * escaladoX1, (y1 + (100 * 3)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 3)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
         ptrbloques nuevos44 = crearBloque(x3 * escaladoX1, (y1 + (150)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (150)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
@@ -1115,74 +1132,88 @@ void iniciarnivel2(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
             paleta(coladeeventos, evento, fuente);
         }
         if (juegoPerdido || !iniciadoprimeravez) {
-            elementonivel = 0.7;
             liberarBolas();
             liberarBloques();
             liberarBloquesvidas();
             listabloquesvivos = nullptr;
             liberarPoderes();
             liberarCapsulas();
-            int x1 = 480;
-            int x2 = 630;
+            int x1 = 520;
+            int x2 = 550;
             int x3 = 780;
             int x4 = 930;
-            int x5 = 1080;
+            int x5 = 1030;
             int y1 = 200;
             int y2 = 250;
+            int y11 = 400;
+            int y22 = 450;
             int multiplicador = 0;
-            for (int i = 0; i < 4; i++) {
-                ptrbloques nuevo = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-                ptrbloques nuevo1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-                ptrbloques nuevo3 = crearBloque(x4 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x4 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-                ptrbloques nuevo4 = crearBloque(x5 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x5 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-                if (i == 0 || i == 3) {
-                    agregarBloques(nuevo1);
-                    agregarBloques(nuevo3);
-                }
-                else {
-                    agregarBloques(nuevo);
-                    agregarBloques(nuevo1);
-                    agregarBloques(nuevo3);
-                    agregarBloques(nuevo4);
-                }
-                multiplicador++;
-            }
-            ptrbloques nuevoz = crearBloque(780 * escaladoX1, (100 + (100 * 0)) * escaladoY1, (780 + 100) * escaladoX1, (150 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-            ptrbloques nuevoz1 = crearBloque(780 * escaladoX1, (100 + (100 * 5)) * escaladoY1, (780 + 100) * escaladoX1, (150 + (100 * 5)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-            ptrbloques nuevo2 = crearBloque(x3 * escaladoX1, (y1 + (100 * 0)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 0)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-            ptrbloques nuevo33 = crearBloque(x3 * escaladoX1, (y1 + (100 * 3)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * 3)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-            ptrbloques nuevos44 = crearBloque(x3 * escaladoX1, (y1 + (150)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (150)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
-            agregarBloques(nuevoz);
-            agregarBloques(nuevoz1);
-            agregarBloques(nuevo2);
-            agregarBloques(nuevo33);
-            agregarBloquesvivos(nuevos44);
+            ptrbloques nuevo = crearBloque(x3 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo2 = crearBloque(x3 * escaladoX1, (y1 + (53)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (53)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo3 = crearBloque(x3 * escaladoX1, (y1 + (106)) * escaladoY1, (x3 + 100) * escaladoX1, (y2 + (106)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo4 = crearBloque((x3 - 103) * escaladoX1, (y1 + (53)) * escaladoY1, ((x3 - 103) + 100) * escaladoX1, (y2 + (53)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo5 = crearBloque((x3 + 103) * escaladoX1, (y1 + (53)) * escaladoY1, ((x3 + 103) + 100) * escaladoX1, (y2 + (53)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
 
-            x1 = 380;
-            x2 = 1180;
-            y1 = 150;
-            y2 = 200;
-            x3 = 480;
-            multiplicador = 1;
-            for (int i = 0; i < 3; i++) {
-                if (i == 1) {
-                    ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-                    ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
-                    agregarBloques(nuevos);
-                    agregarBloques(nuevos1);
-                }
-                else {
-                    ptrbloques nuevos = crearBloque(x1 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x1 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
-                    ptrbloques nuevos1 = crearBloque(x2 * escaladoX1, (y1 + (100 * multiplicador)) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (100 * multiplicador)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
-                    agregarBloquesvivos(nuevos);
-                    agregarBloquesvivos(nuevos1);
-                }
-                multiplicador++;
-            }
-            ptrbloques nuevos4 = crearBloque(((x3)+(150 * 1)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 1)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
-            ptrbloques nuevos5 = crearBloque(((x3)+(150 * 3)) * escaladoX1, (y1 + (500)) * escaladoY1, ((x3 + 100) + (150 * 3)) * escaladoX1, (y2 + (500)) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 85, 45));
-            agregarBloquesvivos(nuevos4);
-            agregarBloquesvivos(nuevos5);
+            ptrbloques nuevo1 = crearBloque(x2 * escaladoX1, (y1 + 300 - 230) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo12 = crearBloque(x2 * escaladoX1, (y1 + (53) + 300 - 230) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (53) + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo13 = crearBloque(x2 * escaladoX1, (y1 + (106) + 300 - 230) * escaladoY1, (x2 + 100) * escaladoX1, (y2 + (106) + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo14 = crearBloque((x2 - 103) * escaladoX1, (y1 + (53) + 300 - 230) * escaladoY1, ((x2 - 103) + 100) * escaladoX1, (y2 + (53) + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo15 = crearBloque((x2 + 103) * escaladoX1, (y1 + (53) + 300 - 230) * escaladoY1, ((x2 + 103) + 100) * escaladoX1, (y2 + (53) + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+
+            ptrbloques nuevo11 = crearBloque((x5 * escaladoX1) - 20, (y1 - 130 + 200) * escaladoY1, ((x5 + 100) * escaladoX1)-20, (y2 + 200 - 130) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo112 = crearBloque((x5 * escaladoX1) - 20, (y1 - 130 + (53) + 200) * escaladoY1, ((x5 + 100) * escaladoX1)-20, (y2 + 200 + (53) - 130) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo113 = crearBloque((x5 * escaladoX1) - 20, (y1 - 130 + (106) + 200) * escaladoY1, ((x5 + 100) * escaladoX1)-20, (y2 + 200 + (106) - 130) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo114 = crearBloque(((x5 - 103) * escaladoX1) - 20, (y1 - 130 + (53) + 200) * escaladoY1, (((x5 - 103) + 100) * escaladoX1) - 20, (y2 - 130 + (53) + 200) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo115 = crearBloque(((x5 + 103) * escaladoX1) - 20, (y1 - 130 + (53) + 200) * escaladoY1, (((x5 + 103) + 100) * escaladoX1) - 20, (y2 - 130 + (53) + 200) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+
+            ptrbloques nuevo111 = crearBloque((x5 * escaladoX1) - 20, (y11 - 130 + 200) * escaladoY1, ((x5 + 100) * escaladoX1) - 20, (y22 + 200 - 130) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo1112 = crearBloque((x5 * escaladoX1) - 20, (y11 - 130 + (53) + 200) * escaladoY1, ((x5 + 100) * escaladoX1) - 20, (y22 + 200 + (53) - 130) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo1113 = crearBloque((x5 * escaladoX1) - 20, (y11 - 130 + (106) + 200) * escaladoY1, ((x5 + 100) * escaladoX1) - 20, (y22 + 200 + (106) - 130) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo1114 = crearBloque(((x5 - 103) * escaladoX1) - 20, (y11 - 130 + (53) + 200) * escaladoY1, (((x5 - 103) + 100) * escaladoX1) - 20, (y22 - 130 + (53) + 200) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo1115 = crearBloque(((x5 + 103) * escaladoX1) - 20, (y11 - 130 + (53) + 200) * escaladoY1, (((x5 + 103) + 100) * escaladoX1) - 20, (y22 - 130 + (53) + 200) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+
+            ptrbloques nuevo1111 = crearBloque(x2 * escaladoX1, (y11 + 300 - 230) * escaladoY1, (x2 + 100) * escaladoX1, (y22 + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo11112 = crearBloque(x2 * escaladoX1, (y11 + (53) + 300 - 230) * escaladoY1, (x2 + 100) * escaladoX1, (y22 + (53) + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo11113 = crearBloque(x2 * escaladoX1, (y11 + (106) + 300 - 230) * escaladoY1, (x2 + 100) * escaladoX1, (y22 + (106) + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo11114 = crearBloque((x2 - 103) * escaladoX1, (y11 + (53) + 300 - 230) * escaladoY1, ((x2 - 103) + 100) * escaladoX1, (y22 + (53) + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+            ptrbloques nuevo11115 = crearBloque((x2 + 103) * escaladoX1, (y11 + (53) + 300 - 230) * escaladoY1, ((x2 + 103) + 100) * escaladoX1, (y22 + (53) + 300 - 230) * escaladoY1, 1 + rand() % 7, 3, obtenerColorNeon());
+
+            ptrbloques indes = crearBloque((x2 + 233) * escaladoX1, (y11 + 30) * escaladoY1, ((x2 + 233) + 100) * escaladoX1, (y22 + 30) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 45, 85));
+            ptrbloques indes1 = crearBloque((x1 - 123) * escaladoX1, (y11 + (53) + 300) * escaladoY1, ((x1 - 123) + 100) * escaladoX1, (y22 + (53) + 300) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 45, 85));
+            ptrbloques indes2 = crearBloque((x1 + 100) * escaladoX1, (y11 + (53) + 300) * escaladoY1, ((x1 + 100) + 100) * escaladoX1, (y22 + (53) + 300) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 45, 85));
+            ptrbloques indes3 = crearBloque((x1 + 410) * escaladoX1, (y11 + (53) + 300) * escaladoY1, ((x1 + 410) + 100) * escaladoX1, (y22 + (53) + 300) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 45, 85));
+            ptrbloques indes4 = crearBloque((x1 + 645) * escaladoX1, (y11 + (53) + 300) * escaladoY1, ((x1 + 645) + 100) * escaladoX1, (y22 + (53) + 300) * escaladoY1, 1 + rand() % 7, 333333333, al_map_rgb(45, 45, 85));
+
+            agregarBloques(nuevo);
+            agregarBloques(nuevo2);
+            agregarBloques(nuevo3);
+            agregarBloques(nuevo4);
+            agregarBloques(nuevo5);
+            agregarBloques(nuevo1);
+            agregarBloques(nuevo12);
+            agregarBloques(nuevo13);
+            agregarBloques(nuevo14);
+            agregarBloques(nuevo15);
+            agregarBloques(nuevo11);
+            agregarBloques(nuevo112);
+            agregarBloques(nuevo113);
+            agregarBloques(nuevo114);
+            agregarBloques(nuevo115);
+            agregarBloques(nuevo111);
+            agregarBloques(nuevo1112);
+            agregarBloques(nuevo1113);
+            agregarBloques(nuevo1114);
+            agregarBloques(nuevo1115);
+            agregarBloques(nuevo1111);
+            agregarBloques(nuevo11112);
+            agregarBloques(nuevo11113);
+            agregarBloques(nuevo11114);
+            agregarBloques(nuevo11115);
+            agregarBloquesvivos(indes);
+            agregarBloquesvivos(indes1);
+            agregarBloquesvivos(indes2);
+            agregarBloquesvivos(indes3);
+            agregarBloquesvivos(indes4);
             iniciadoprimeravez = true;
         }
         dibujarCapsulas();

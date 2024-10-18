@@ -8,6 +8,7 @@
 #include <allegro5/allegro_audio.h>
 #include <allegro5/allegro_acodec.h>
 #include <allegro5/allegro_image.h>
+#include "Carga y Guardado (AVL).h"
 #include "Nivel1.h"
 #include "Assets.h"
 #include "Arkanoid.h"
@@ -30,5 +31,10 @@ extern int frames;
 extern int random1;
 extern int random2;
 extern int random3;
+extern int bolastotal;
+extern int bolasre;
+extern int bolasper;
+extern int objetosgolpeados;
+extern abbptr jugadoractual;
 float devolverx();
 float devolvery();
