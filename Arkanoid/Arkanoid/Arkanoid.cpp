@@ -154,6 +154,7 @@ int main() {
     ALLEGRO_SAMPLE* winners = al_load_sample("music/winners.ogg");
     ALLEGRO_SAMPLE* vidaperdidamusica = al_load_sample("music/vidaperdida.ogg");
     ALLEGRO_SAMPLE* victorykir = al_load_sample("music/victorykir.ogg");
+    ALLEGRO_SAMPLE* musicaduo = al_load_sample("music/duojugadores.ogg");
     ALLEGRO_SAMPLE_ID id_musica;
     al_play_sample(musicamenu, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
     cargarDatosUsuarios(puntuaciones);
@@ -225,7 +226,7 @@ int main() {
         else if (duojugadores) {
             if (musicadetenida) {
                 al_stop_sample(&id_musica);
-                al_play_sample(musicanivel2, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
+                al_play_sample(musicaduo, 1.0, 0.0, 1.0, ALLEGRO_PLAYMODE_LOOP, &id_musica);
                 musicadetenida = false;
             }
         }
