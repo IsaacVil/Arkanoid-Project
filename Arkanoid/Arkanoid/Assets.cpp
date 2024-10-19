@@ -47,13 +47,11 @@ int frame2 = 0;
 int vidas = 3;
 int frame_actual2 = 0;
 int frames_totales2 = 8;
-int vidajugador = 5;
-int vidajugador2 = 5;
 int elementonivel = 0;
 double tiempoInicioCapsula = 0;
+double frameenemigos = 0.0f;
 double tiempo_anterior2 = 0; // Tiempo del último frame
 int tipocapsula = 1;
-
 ALLEGRO_COLOR obtenerColorNeon() {
     int seleccion = rand() % 8;
     switch (seleccion) {
@@ -167,6 +165,7 @@ typedef struct Enemigos {
     float velocidadX;
     float velocidadY;
     float radio;
+    int tipo;
     Enemigos* siguiente;
 }* ptrenemigos;
 
@@ -218,11 +217,12 @@ ptrpoderes crearPoder(int tipo, int tiempo) {
     return nuevo;
 }
 
-ptrenemigos crearEnemigos(int puntos, float x, float y, float velocidadX, float velocidadY, float radio) {
+ptrenemigos crearEnemigos(int puntos, float x, float y, int tipo, float velocidadX, float velocidadY, float radio) {
     ptrenemigos nuevo = new Enemigos;
     nuevo->puntos = puntos;
     nuevo->x = x;
     nuevo->y = y;
+    nuevo->tipo = tipo;
     nuevo->velocidadX = velocidadX;
     nuevo->velocidadY = velocidadY;
     nuevo->radio = radio;
@@ -331,9 +331,74 @@ void cambiarbackground(ALLEGRO_BITMAP*& background1) {
 
 void dibujarEnemigos() {
     ptrenemigos actual = listaenemigos;
+    ALLEGRO_BITMAP* enemigo1 = al_load_bitmap("sprites/enemigos/1.png");
+    ALLEGRO_BITMAP* enemigo4 = al_load_bitmap("sprites/enemigos/4.png");
+
     while (actual != nullptr) {
-        al_draw_filled_circle(actual->x, actual->y, actual->radio, al_map_rgb(255, 0, 0));
-        actual = actual->siguiente;
+        if (actual->tipo == 0) {
+            int totalenemigo1 = 16;
+            int frames_por_fila10 = al_get_bitmap_width(enemigo1) / totalenemigo1;
+            int total_frames = frames_por_fila10 * (al_get_bitmap_height(enemigo1) / totalenemigo1);
+            frame = frame % total_frames;
+            int frameX10 = (frame % frames_por_fila10) * totalenemigo1;
+            int frameY10 = (frame / frames_por_fila10) * totalenemigo1;
+            int nuevo_ancho = totalenemigo1 * 5;
+            int nuevo_alto = totalenemigo1 * 5; 
+            al_draw_scaled_bitmap(enemigo1, frameX10, frameY10, totalenemigo1, totalenemigo1, actual->x - 40, actual->y - 40, nuevo_ancho, nuevo_alto, 0);
+        }
+        if (actual->tipo == 1) {
+            int totalenemigo1 = 16;
+            int frames_por_fila10 = al_get_bitmap_width(enemigo1) / totalenemigo1;
+            int total_frames = frames_por_fila10 * (al_get_bitmap_height(enemigo1) / totalenemigo1);
+            frame = frame % total_frames;
+            int frameX10 = (frame % frames_por_fila10) * totalenemigo1;
+            int frameY10 = (frame / frames_por_fila10) * totalenemigo1;
+            int nuevo_ancho = totalenemigo1 * 5;
+            int nuevo_alto = totalenemigo1 * 5;
+            ALLEGRO_COLOR colorVerde = al_map_rgb(255, 255, 0);
+            al_draw_tinted_scaled_bitmap(enemigo1, colorVerde, frameX10, frameY10, totalenemigo1, totalenemigo1, actual->x - 40, actual->y - 40, nuevo_ancho, nuevo_alto, 0);
+        }
+        if (actual->tipo == 2) {
+            int totalenemigo1 = 16;
+            int frames_por_fila10 = al_get_bitmap_width(enemigo1) / totalenemigo1;
+            int total_frames = frames_por_fila10 * (al_get_bitmap_height(enemigo1) / totalenemigo1);
+            frame = frame % total_frames;
+            int frameX10 = (frame % frames_por_fila10) * totalenemigo1;
+            int frameY10 = (frame / frames_por_fila10) * totalenemigo1;
+            int nuevo_ancho = totalenemigo1 * 5;
+            int nuevo_alto = totalenemigo1 * 5;
+            ALLEGRO_COLOR colorRojo = al_map_rgb(255, 55, 55);
+            al_draw_tinted_scaled_bitmap(enemigo1, colorRojo, frameX10, frameY10, totalenemigo1, totalenemigo1, actual->x - 40, actual->y - 40, nuevo_ancho, nuevo_alto, 0);
+        }
+        if (actual->tipo == 3) {
+            int totalenemigo2 = 16;
+            int frames_por_fila10 = al_get_bitmap_width(enemigo4) / totalenemigo2;
+            int total_frames = frames_por_fila10 * (al_get_bitmap_height(enemigo4) / totalenemigo2);
+            int frameX10 = (frame % frames_por_fila10) * totalenemigo2;
+            int frameY10 = (frame / frames_por_fila10) * totalenemigo2;
+            int nuevo_ancho = totalenemigo2 * 5; 
+            int nuevo_alto = totalenemigo2 * 5;
+            al_draw_scaled_bitmap(enemigo4, frameX10, frameY10, totalenemigo2, totalenemigo2, actual->x - 40, actual->y - 40, nuevo_ancho, nuevo_alto, 0);
+            if (frame >= total_frames - 1) {
+                ptrenemigos enemigoParaEliminar = actual;
+                if (actual == listaenemigos) {
+                    listaenemigos = actual->siguiente;
+                }
+                else {
+                    ptrenemigos anterior = listaenemigos;
+                    while (anterior->siguiente != actual) {
+                        anterior = anterior->siguiente;
+                    }
+                    anterior->siguiente = actual->siguiente;
+                }
+                actual = actual->siguiente; 
+                delete enemigoParaEliminar;
+                total_frames = 0;
+                frame = 0;
+                break;
+            }
+        }
+        actual = actual->siguiente; 
     }
 }
 
@@ -428,7 +493,7 @@ void dibujarCapsulas() {
 }
 
 int achocado(ptrbola bola, ptrbloques bloque) {
-    int margen = 1;
+    int margen = 5;
     if (bola->x - bola->radio <= bloque->plataformax + margen && bola->x + bola->radio >= bloque->plataformax - margen &&
         bola->y >= bloque->plataformay && bola->y <= bloque->plataformaaltura &&
         bola->velocidadX > 0) {
@@ -457,6 +522,63 @@ int achocado(ptrbola bola, ptrbloques bloque) {
         return 2;
     }
     return 0;
+}
+
+void dibujarColisiones(float bolaX, float bolaY, float radioBola,
+    float bloqueX, float bloqueY, float bloqueAncho, float bloqueAlto) {
+    // Dibuja el bloque (rectángulo)
+    al_draw_rectangle(bloqueX, bloqueY, bloqueX + bloqueAncho, bloqueY + bloqueAlto,
+        al_map_rgb(255, 255, 255), 3);
+
+    // Dibuja la bola
+    //al_draw_filled_circle(bolaX, bolaY, radioBola, al_map_rgb(255, 0, 0));
+
+    // Dibuja los márgenes de colisión en verde
+    int margen = 5;
+    // Márgenes de colisión izquierda y derecha
+    al_draw_rectangle(bloqueX - margen, bloqueY - margen, bloqueX + margen, bloqueY + bloqueAlto + margen,
+        al_map_rgb(0, 255, 0), 1);
+    al_draw_rectangle(bloqueX + bloqueAncho - margen, bloqueY - margen, bloqueX + bloqueAncho + margen, bloqueY + bloqueAlto + margen,
+        al_map_rgb(0, 255, 0), 1);
+
+    // Márgenes de colisión superior e inferior
+    al_draw_rectangle(bloqueX - margen, bloqueY - margen, bloqueX + bloqueAncho + margen, bloqueY + margen,
+        al_map_rgb(0, 255, 0), 1);
+    al_draw_rectangle(bloqueX - margen, bloqueY + bloqueAlto - margen, bloqueX + bloqueAncho + margen, bloqueY + bloqueAlto + margen,
+        al_map_rgb(0, 255, 0), 1);
+}
+
+int achocadoenemigos(ptrenemigos bola, ptrbloques bloque) {
+    // Ajusta el margen de colisión
+    int margen = 10; // Puedes aumentar este valor para hacer la colisión más "amplia"
+
+    if (bola->x - bola->radio <= bloque->plataformax + margen && bola->x + bola->radio >= bloque->plataformax - margen &&
+        bola->y >= bloque->plataformay - margen && bola->y <= bloque->plataformaaltura + margen &&
+        bola->velocidadX > 0) {
+        return 1;
+    }
+
+    // Colisión con el lado derecho del bloque
+    if (bola->x - bola->radio <= bloque->plataformaanchura + margen && bola->x + bola->radio >= bloque->plataformaanchura - margen &&
+        bola->y >= bloque->plataformay - margen && bola->y <= bloque->plataformaaltura + margen &&
+        bola->velocidadX < 0) {
+        return 1;
+    }
+
+    // Colisión con la parte superior del bloque
+    if (bola->y - bola->radio <= bloque->plataformay + margen && bola->y + bola->radio >= bloque->plataformay - margen &&
+        bola->x >= bloque->plataformax - margen && bola->x <= bloque->plataformaanchura + margen &&
+        bola->velocidadY > 0) {
+        return 2;
+    }
+
+    // Colisión con la parte inferior del bloque
+    if (bola->y - bola->radio <= bloque->plataformaaltura + margen && bola->y + bola->radio >= bloque->plataformaaltura - margen &&
+        bola->x >= bloque->plataformax - margen && bola->x <= bloque->plataformaanchura + margen &&
+        bola->velocidadY < 0) {
+        return 2;
+    }
+
 }
 
 bool capsularandom() {
@@ -541,8 +663,44 @@ void manejarcolisionvivos(ptrbola& bola) {
     }
 }
 
+void manejarcolisionenemigos(ptrenemigos& bola) {
+    ptrbloques bloque = listabloques;
+    ptrbloques anterior = nullptr; // Para llevar un seguimiento del bloque anterior
+
+    while (bloque != nullptr) {
+        if (achocadoenemigos(bola, bloque) == 1) {
+            bola->velocidadX = -bola->velocidadX;
+        }
+        else if (achocadoenemigos(bola, bloque) == 2) {
+            bola->velocidadY = -bola->velocidadY;
+        }
+        else {
+            anterior = bloque; // Actualizar el bloque anterior solo si no se eliminó
+            bloque = bloque->siguiente; // Avanzar al siguiente bloque
+        }
+    }
+}
+
+void manejarcolisionvivosenemigos(ptrenemigos& bola) {
+    ptrbloques bloque = listabloquesvivos;
+    ptrbloques anterior = nullptr; // Para llevar un seguimiento del bloque anterior
+
+    while (bloque != nullptr) {
+        if (achocadoenemigos(bola, bloque) == 1) {
+            bola->velocidadX = -bola->velocidadX;
+        }
+        else if (achocadoenemigos(bola, bloque) == 2) {
+            bola->velocidadY = -bola->velocidadY;
+        }
+        else {
+            anterior = bloque; // Actualizar el bloque anterior solo si no se eliminó
+            bloque = bloque->siguiente; // Avanzar al siguiente bloque
+        }
+    }
+}
+
 void lanzarBolaDesdePlataforma(float plataforma_x, float plataforma_y, float plataforma_altura) {
-    if (!bolaLanzada || true) {
+    if (!bolaLanzada) {
         float velocidadX = (4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) + elementonivel * escaladoX1;
         float velocidadY = -5.0f - elementonivel * escaladoY1; // Lanza la bola hacia arriba
         ptrbola nuevabola = crearBola(plataforma_x, plataforma_y - plataforma_altura / 2.0 - 10.0f, velocidadX, velocidadY, 10.0f);
@@ -553,6 +711,101 @@ void lanzarBolaDesdePlataforma(float plataforma_x, float plataforma_y, float pla
     
 }
 
+void actualizarEnemigos() {
+    ptrenemigos actual = listaenemigos;
+    ptrenemigos anterior = nullptr;
+    int margen = 10;
+    ptrbola bola_actual = listabola;
+
+    while (actual != nullptr) {
+        bool enemigoEliminado = false;
+        // Actualiza la posición
+        actual->x += actual->velocidadX;
+        actual->y += actual->velocidadY;
+
+        manejarcolisionenemigos(actual);
+        manejarcolisionvivosenemigos(actual);
+
+        // Colisiones con las paredes
+        if (actual->x - actual->radio < anchurainicio + 24 * escaladoX1 || actual->x + actual->radio > anchurafinal - 24 * escaladoX1) {
+            actual->velocidadX *= -1; // Rebotar en la pared izquierda o derecha
+        }
+        if (actual->y - actual->radio < 65 * escaladoY1) {
+            actual->velocidadY *= -1; // Rebotar en la parte superior
+        }
+        if (actual->y - actual->radio > 1040 * escaladoY1) { // Prueba con un valor fijo
+            puntos -= 8000;
+            enemigoEliminado = true;
+        }
+
+        // Variable para verificar si se eliminó el enemigo
+        while (bola_actual != nullptr) {
+            // Determinar las coordenadas de la bola
+            float bolaX = bola_actual->x * escaladoX; // Ajusta según la escala
+            float bolaY = bola_actual->y * escaladoY;
+
+            // Comprobar si hay una colisión
+            if (bolaX + bola_actual->radio >= actual->x - actual->radio - margen && bolaX - bola_actual->radio <= actual->x + actual->radio + margen &&
+                bolaY + bola_actual->radio >= actual->y - actual->radio - margen &&
+                bolaY - bola_actual->radio <= actual->y + actual->radio + margen) {
+
+                // Calcular las distancias en los ejes X y Y
+                float distanciaambasx = bolaX - actual->x;
+                float distanciaambasy = bolaY - actual->y;
+
+                // Determinar qué lado del enemigo fue golpeado
+                if (abs(distanciaambasx) > abs(distanciaambasy) && distanciaambasx > 0) {
+                    // Colisión desde la derecha
+                    bola_actual->velocidadX *= -1; // Cambiar dirección en X
+                }
+                else if (abs(distanciaambasx) > abs(distanciaambasy) && distanciaambasx < 0) {
+                    // Colisión desde la izquierda
+                    bola_actual->velocidadX *= -1; // Cambiar dirección en X
+                }
+                else if (abs(distanciaambasy) > abs(distanciaambasx) && distanciaambasy > 0) {
+                    // Colisión desde abajo
+                    bola_actual->velocidadY *= -1; // Cambiar dirección en Y
+                }
+                else if (abs(distanciaambasy) > abs(distanciaambasx) && distanciaambasy < 0) {
+                    // Colisión desde arriba
+                    bola_actual->velocidadY *= -1; // Cambiar dirección en Y
+                }
+
+                // Marcar el enemigo para eliminar
+                enemigoEliminado = true;
+                break; // Salir del bucle de bolas ya que el enemigo ha sido golpeado
+            }
+
+            bola_actual = bola_actual->siguiente; // Avanza al siguiente nodo en la lista de bolas
+        }
+
+        // Si se detectó una colisión y el enemigo debe ser eliminado
+        if (enemigoEliminado) {
+            puntos += actual->puntos;
+            int actualx = actual->x;
+            int actualy = actual->y;
+            if (anterior == nullptr) {
+                // Eliminar el primer enemigo de la lista
+                listaenemigos = actual->siguiente;
+                delete actual; // Liberar memoria
+                actual = listaenemigos; // Actualizar el puntero actual
+            }
+            else {
+                // Eliminar el enemigo en medio o al final de la lista
+                anterior->siguiente = actual->siguiente;
+                delete actual; // Liberar memoria
+                actual = anterior->siguiente; // Actualizar el puntero actual
+            }
+            ptrenemigos explosion = crearEnemigos(0, actualx, actualy, 3, 0, 0, 1);
+            agregarEnemigos(explosion);
+        }
+        else {
+            // Avanza al siguiente nodo solo si no se eliminó
+            anterior = actual;
+            actual = actual->siguiente; // Avanza al siguiente nodo
+        }
+    }
+}
 void actualizarBolas(float plataforma_x, float plataforma_y, float plataforma_anchura, float plataforma_altura) {
     ptrbola actual = listabola;
     ptrbola anterior = nullptr;
@@ -645,6 +898,13 @@ void liberarPoderes() {
     }
 }
 
+void liberarEnemigos() {
+    while (listaenemigos != nullptr) {
+        ptrenemigos Aux = listaenemigos;
+        listaenemigos = listaenemigos->siguiente;
+        delete Aux;
+    }
+}
 
 void velocidadbola(int mas) {
     ptrbola aux = listabola;
@@ -919,6 +1179,45 @@ void perdidavida(ALLEGRO_FONT* fuente) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool crearenemigo = false;
+int generarNumero123() {
+    if (nivel1) {
+        int numAleatorio = rand() % 32;
+        if (numAleatorio < 28) {
+            return 0;
+        }
+        else if (numAleatorio < 31) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
+    else if (nivel2) {
+        int numAleatorio = rand() % 32;
+        if (numAleatorio < 20) {
+            return 0;
+        }
+        else if (numAleatorio < 28) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
+    else if (nivel3) {
+        int numAleatorio = rand() % 32;
+        if (numAleatorio < 10) {
+            return 0;
+        }
+        else if (numAleatorio < 18) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
+}
 
 void abrircompuerta() {
     ALLEGRO_BITMAP* abierto = al_load_bitmap("sprites/backgrounds/10.png");
@@ -947,15 +1246,31 @@ void abrircompuerta() {
     }
 
     double tiempo_actual = al_get_time(); // Obtener el tiempo actual
-
     // Controlar la animación
     if (!animacionterminada) {
         if (en_ultimo_frame) {
             // Si estamos en el último frame, esperar 8 segundos antes de continuar
-            if (tiempo_actual - tiempo_en_ultimo_frame >= 8.0) {
+            if (!(crearenemigo)) {
+                int numerogen = generarNumero123();
+                if (numerogen == 0) {
+                    ptrenemigos enemigo = crearEnemigos(3000, compuertax + 25.50, compuertay + 76.50, 0, 1.5, 1.2, 30);//VELOCIDAD X EN 0.5 Y LA Y IGUAL
+                    agregarEnemigos(enemigo);
+                }
+                else if (numerogen == 1) {
+                    ptrenemigos enemigo = crearEnemigos(7000, compuertax + 25.50, compuertay + 76.50, 1, 1.5, 1.2, 30);//VELOCIDAD X EN 0.5 Y LA Y IGUAL
+                    agregarEnemigos(enemigo);
+                }
+                else if (numerogen == 2) {
+                    ptrenemigos enemigo = crearEnemigos(14000, compuertax + 25.50, compuertay + 76.50, 2, 1.5, 1.2, 30);//VELOCIDAD X EN 0.5 Y LA Y IGUAL
+                    agregarEnemigos(enemigo);
+                }
+                crearenemigo = true;
+            }
+            if (tiempo_actual - tiempo_en_ultimo_frame >= 5.0) {
                 en_ultimo_frame = false;  // Resetear el indicador de último frame
                 animacion_reversa = true;  // Cambiar a animación en reversa
                 ultimo_cambio = tiempo_actual;  // Reiniciar el temporizador
+                crearenemigo = false;
             }
         }
         else {
@@ -1019,6 +1334,20 @@ void abrircompuerta() {
 }
 
 //tipocapsula
+bool menosdedosenemigos() {
+    ptrenemigos aux = listaenemigos;
+    int contador = 0;
+    while (aux != nullptr) {
+        contador++;
+        if (contador > 1) {
+            return false;
+        }
+        aux = aux->siguiente;
+    }
+    return true;
+}
+double tiempoparaanimar = 0.0f;
+double tiempocomprobacion = 0.0f;
 void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento) {
     srand(time(0));
     elementonivel = 0;
@@ -1036,6 +1365,13 @@ void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
     al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 350 * escaladoY1, 0, to_string(puntos).c_str());
     al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 400 * escaladoY1, 0, "Vidas");
     al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 450 * escaladoY1, 0, to_string(vidas).c_str());
+
+    if (animacionterminada) {
+        if (menosdedosenemigos()) {
+            animacionterminada = false;
+        }
+    }
+
     if (juegoPerdido && vidas > 0 && !mostrarmensaje) {
         vidas = vidas - 1;
         hazperdidounavida();
@@ -1047,6 +1383,7 @@ void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
         liberarBolas();
         liberarBloques();
         liberarBloquesvidas();
+        liberarEnemigos(); ///////
         listabloquesvivos = nullptr;
         liberarPoderes();
         liberarCapsulas();
@@ -1102,9 +1439,12 @@ void iniciarnivel1(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
         agregarBloquesvivos(nuevos5);
         iniciadoprimeravez = true;
     }
+    abrircompuerta();
+    actualizarEnemigos();
+    dibujarEnemigos();
+    frameenemigos = al_get_time();
     dibujarCapsulas();
     manejarPoderes();
-    abrircompuerta();
     perdidavida(fuente);
 }
 
@@ -1119,7 +1459,11 @@ void iniciarnivel2(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
             al_draw_scaled_bitmap(imagen, 0, 0, al_get_bitmap_width(imagen), al_get_bitmap_height(imagen), anchurainicio, 50 * escaladoY1, anchurafinal - anchurainicio,
                 (1000 * escaladoY1) - (50 * escaladoY1), 0);
         }
-
+        if (animacionterminada) {
+            if (menosdedosenemigos()) {
+                animacionterminada = false;
+            }
+        }
         al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 300 * escaladoY1, 0, "Puntos");
         al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 350 * escaladoY1, 0, to_string(puntos).c_str());
         al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 400 * escaladoY1, 0, "Vidas");
@@ -1134,6 +1478,7 @@ void iniciarnivel2(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
         if (juegoPerdido || !iniciadoprimeravez) {
             liberarBolas();
             liberarBloques();
+            liberarEnemigos();
             liberarBloquesvidas();
             listabloquesvivos = nullptr;
             liberarPoderes();
@@ -1216,9 +1561,12 @@ void iniciarnivel2(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
             agregarBloquesvivos(indes4);
             iniciadoprimeravez = true;
         }
+        abrircompuerta();
+        actualizarEnemigos();
+        dibujarEnemigos();
+        frameenemigos = al_get_time();
         dibujarCapsulas();
         manejarPoderes();
-        abrircompuerta();
         perdidavida(fuente);
 }
 
@@ -1235,7 +1583,11 @@ void iniciarnivel3(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
         cambiarbackground(imagen);
 
     }
-
+    if (animacionterminada) {
+        if (menosdedosenemigos()) {
+            animacionterminada = false;
+        }
+    }
     al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 300 * escaladoY1, 0, "Puntos");
     al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 350 * escaladoY1, 0, to_string(puntos).c_str());
     al_draw_text(fuente, al_map_rgb(255, 255, 255), 1350 * escaladoX1, 400 * escaladoY1, 0, "Vidas");
@@ -1251,6 +1603,7 @@ void iniciarnivel3(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
         elementonivel = 1.0;
         liberarBolas();
         liberarBloques();
+        liberarEnemigos();
         liberarBloquesvidas();
         listabloquesvivos = nullptr;
         liberarPoderes();
@@ -1318,98 +1671,11 @@ void iniciarnivel3(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEG
         agregarBloquesvivos(nuevos5);
         iniciadoprimeravez = true;
     }
+    abrircompuerta();
+    actualizarEnemigos();
+    dibujarEnemigos();
+    frameenemigos = al_get_time();
     dibujarCapsulas();
     manejarPoderes();
-    abrircompuerta();
     perdidavida(fuente);
-}
-
-
-int plataforma_x2 = 35;
-int plataforma_x3 = 1835;
-int plataforma_anchura2 = 37;
-int plataforma_anchura3 = 1837;
-int plataforma_y2 = 500;
-int plataforma_y3 = 500;
-int plataforma_altura2 = 550;
-int plataforma_altura3 = 550;
-int bitmap_ancho = 0;
-int bitmap_alto = 0;
-int bitmap_ancho2 = 0;
-int bitmap_alto2 = 0;
-
-void paletas(int cual, ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento, ALLEGRO_FONT* fuente) {
-    ALLEGRO_BITMAP* player1 = al_load_bitmap("sprites/Nave/normalpl1.png");
-    ALLEGRO_BITMAP* player2 = al_load_bitmap("sprites/Nave/normalpl2.png");
-
-    // Obtén el tamaño original del bitmap
-    bitmap_ancho = al_get_bitmap_width(player1);
-    bitmap_alto = al_get_bitmap_height(player1);
-    bitmap_ancho2 = al_get_bitmap_width(player2);
-    bitmap_alto2 = al_get_bitmap_height(player2);
-
-    // Ajusta el escalado, reduciendo los valores si es necesario
-    if (cual == 1) {
-        al_draw_scaled_bitmap(player1, 0, 0, bitmap_ancho, bitmap_alto,
-            plataforma_x2, plataforma_y2,
-            bitmap_ancho * 3.5, bitmap_alto * 3.5, // Escalado al 50% como ejemplo
-            0);
-    }
-    else if (cual == 2) {
-        al_draw_scaled_bitmap(player2, 0, 0, bitmap_ancho2, bitmap_alto2,
-            plataforma_x3, plataforma_y3,
-            bitmap_ancho2 * 3.5, bitmap_alto2 * 3.5, // Escalado al 50% como ejemplo
-            0);
-    }
-
-    al_destroy_bitmap(player1);
-    al_destroy_bitmap(player2);
-}
-
-void iniciarduojugadores(ALLEGRO_FONT* fuente, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento) {
-
-    ALLEGRO_BITMAP* imagen = al_load_bitmap("sprites/backgrounds/20.png");
-
-        // Definir el punto de rotación en el centro de la imagen
-    float centro_x = al_get_bitmap_width(imagen) / 2;
-    float centro_y = al_get_bitmap_height(imagen) / 2;
-
-        // Definir el área de destino en la pantalla
-    float anchuradisponible = anchurafinal - anchurainicio;
-    float alturadisponible = (1000 * escaladoY1) - (50 * escaladoY1);
-
-        // Ajustar el escalado según las dimensiones disponibles y la rotación
-    float escaladoX2 = alturadisponible / (al_get_bitmap_width(imagen) * 1.02 * escaladoY1);  // Escalado en X
-    float escaladoY2 = anchuradisponible / (al_get_bitmap_height(imagen) * 1.02* escaladoY1); // Escalado en Y
-
-        // Posición central en pantalla
-    float pos_x = 430 * escaladoX1;
-    float pos_x2 = 1488 * escaladoX1;
-    float pos_y = 50 * escaladoY1 + alturadisponible / 2;
-
-
-        // Dibujar la imagen escalada y rotada 90 grados
-    al_draw_scaled_rotated_bitmap(
-        imagen,
-        centro_x, centro_y,                 // Centro de la imagen para rotación
-        pos_x, pos_y,                       // Posición en la pantalla
-        escaladoX2, escaladoY2,             // Escalado ajustado en X y Y
-        ALLEGRO_PI / 2,                     // Rotar 90 grados (en radianes)
-        0);
-
-    al_draw_scaled_rotated_bitmap(
-        imagen,
-        centro_x, centro_y,                 // Centro de la imagen para rotación
-        pos_x2, pos_y,                       // Posición en la pantalla
-        escaladoX2, escaladoY2,             // Escalado ajustado en X y Y
-        3 * ALLEGRO_PI / 2,                     // Rotar 90 grados (en radianes)
-        0);
-
-
-    ALLEGRO_FONT* fuentetitulo = al_load_ttf_font("font/ARCADE_I.Ttf", 100 * escaladoX, 0);
-    al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 910 * escaladoX1, 270 * escaladoY1, 0, to_string(vidajugador).c_str());
-    al_draw_text(fuentetitulo, color_actual, 910 * escaladoX1, 485 * escaladoY1, 0, "|");
-    al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 910 * escaladoX1, 700 * escaladoY1, 0, to_string(vidajugador2).c_str());
-    paletas(1, coladeeventos, evento, fuente);
-    paletas(2, coladeeventos, evento, fuente);
 }

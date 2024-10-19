@@ -10,6 +10,7 @@
 #include <allegro5/allegro_image.h>
 #include "Carga y Guardado (AVL).h"
 #include "Nivel1.h"
+#include "dosjugadores.h"
 #include "Assets.h"
 #include "Arkanoid.h"
 #include "resource.h"

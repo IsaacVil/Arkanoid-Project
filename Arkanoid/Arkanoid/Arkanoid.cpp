@@ -9,6 +9,7 @@
 #include <sapi.h>
 #include "Carga y Guardado (AVL).h"
 #include "Assets.h"
+#include "dosjugadores.h"
 #include "resource.h"
 #include <string>
 #include <iostream>
@@ -61,6 +62,7 @@ int puntos = 0;
 double tiempomensajetrans1 = 0;
 double tiempomensajetrans2 = 0;
 double tiempomensajetrans3 = 0;
+double tiempomensajeduo = 0;
 char nombreusuario2[MAX_NOMBRE] = "";
 char nombreusuario[MAX_NOMBRE] = "_________";
 int longitud_nombre = 0;
@@ -306,6 +308,7 @@ int main() {
                         }
                         jugadoractual = nodo(puntosreales, bolastotal, bolasre, bolasper, objetosgolpeados, nombrestringjugador);
                         insertaravl(puntuaciones, jugadoractual);
+                        guardardatosusuarios(puntuaciones);
                     }
                 }
             }
@@ -359,6 +362,9 @@ int main() {
                         duojugadores = true;
                         niveles = false;
                         top5 = false;
+                        juegoperdidoseriop1 = false;
+                        juegoperdidoseriop2 = false;
+                        vidasfull();
                     }
                     else if (opcion == 2) {
                         menu = false;
@@ -366,6 +372,7 @@ int main() {
                         musicadetenida = true;
                         musicajuego = false;
                         top5 = true;
+                        cargarDatosUsuarios(puntuaciones);
                         top5vector = mostrarTop5(puntuaciones);
                     }
                     opcion = 0;
@@ -492,10 +499,13 @@ int main() {
                     break;
                 }
             }
+
+
             int frames_por_fila = al_get_bitmap_width(mundo1sel) / 90;
             int frameX = (frame % frames_por_fila) * 90;
             int frameY = (frame / frames_por_fila) * 90;
             al_draw_scaled_bitmap(mundo1, frameX, frameY, 90, 90, 480 * escaladoX, 440 * escaladoY, 90 * 1.5, 90 * 1.5, 0);
+
             frames_por_fila = al_get_bitmap_width(mundo2) / 270;
             frameX = (frame % frames_por_fila) * 270;
             frameY = (frame / frames_por_fila) * 270;
@@ -518,9 +528,45 @@ int main() {
         }
         else if (duojugadores) ////////////////////////////////////////////NIVEL 1////////////////////////////////////////////
         {
-            tiempo += 0.3 / FPS;
-            color_actual = colorarcoiris(tiempo);
-            iniciarduojugadores(fuente, temporizador_bola, coladeevento, evento);
+            if (!(juegoperdidoseriop1 || juegoperdidoseriop2)) {
+                tiempo += 0.3 / FPS;
+                color_actual = colorarcoiris(tiempo);
+                iniciarduojugadores(fuente, fuentesubtitulo, temporizador_bola, coladeevento, evento);
+                tiempomensajeduo = al_get_time();
+            }
+            else if (juegoperdidoseriop1 && juegoperdidoseriop2) {
+                string mensaje = "Empatados";
+                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 420 * escaladoX, 600 * escaladoY, 0, "EMPATADOS");
+                if (al_get_time() - tiempomensajeduo >= 0.5f) {
+                    vidasfull();
+                    hr = pVoice->Speak(wstring(mensaje.begin(), mensaje.end()).c_str(), SPF_IS_XML, NULL);
+                    duojugadores = false;
+                    menu = true;
+                }
+
+            }
+            else if (juegoperdidoseriop2 && (!(juegoperdidoseriop1))) {
+                string mensaje = "Jugador 1 GANADOR";
+                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 400 * escaladoX, 250 * escaladoY, 0, "JUGADOR 1");
+                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 420 * escaladoX, 600 * escaladoY, 0, "GANADOR");
+                if (al_get_time() - tiempomensajeduo >= 0.5f) {
+                    vidasfull();
+                    hr = pVoice->Speak(wstring(mensaje.begin(), mensaje.end()).c_str(), SPF_IS_XML, NULL);
+                    duojugadores = false;
+                    menu = true;
+                }
+            }
+            else if (juegoperdidoseriop1 && (!(juegoperdidoseriop2))) {
+                string mensaje = "Jugador 2 GANADOR";
+                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 400 * escaladoX, 250 * escaladoY, 0, "JUGADOR 2");
+                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 420 * escaladoX, 600 * escaladoY, 0, "GANADOR");
+                if (al_get_time() - tiempomensajeduo >= 0.5f) {
+                    vidasfull();
+                    hr = pVoice->Speak(wstring(mensaje.begin(), mensaje.end()).c_str(), SPF_IS_XML, NULL);
+                    duojugadores = false;
+                    menu = true;
+                }
+            }
         }
         else if (nivel1) ////////////////////////////////////////////NIVEL 1////////////////////////////////////////////
         {
@@ -547,20 +593,11 @@ int main() {
         else if (transicion1 && !nivel2) {
             if (jugadoractual->codigo <= puntosreales) {
                 jugadoractual->codigo = puntosreales;
-                guardardatosusuarios(puntuaciones);
             }
+            guardardatosusuarios(puntuaciones);
             //AQUI VA PARA GUARDAR
             al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 300 * escaladoY, 0, "Haz Ganado el Nivel 1");
             al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 500 * escaladoY, 0, "Continuando al siguiente...");
-
-            al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 600 * escaladoY, 0, to_string(jugadoractual->codigo).c_str());
-            al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 700 * escaladoY, 0, jugadoractual->nombre.c_str());
-            al_draw_text(fuente, al_map_rgb(255, 255, 255), 845 * escaladoX, 600 * escaladoY, 0, to_string(jugadoractual->totalbolas).c_str());
-            al_draw_text(fuente, al_map_rgb(255, 255, 255), 645 * escaladoX, 700 * escaladoY, 0, to_string(jugadoractual->bolasreb).c_str());
-            al_draw_text(fuente, al_map_rgb(255, 255, 255), 645 * escaladoX, 600 * escaladoY, 0, to_string(jugadoractual->bolasper).c_str());
-            al_draw_text(fuente, al_map_rgb(255, 255, 255), 645 * escaladoX, 300 * escaladoY, 0, to_string(jugadoractual->objetosdestruidos).c_str());
-
-
 
             if (al_get_time() - tiempomensajetrans1 >= 6.0f) {
                 transicion1 = false;
@@ -598,7 +635,6 @@ int main() {
         else if (transicion2 && !nivel3) {
             if (jugadoractual->codigo <= puntosreales) {
                 jugadoractual->codigo = puntosreales;
-                guardardatosusuarios(puntuaciones);
             }
             //AQUI VA PARA GUARDAR
             al_draw_text(fuente, al_map_rgb(255, 255, 255), 445 * escaladoX, 300 * escaladoY, 0, "Haz Ganado el Nivel 2");
@@ -632,9 +668,14 @@ int main() {
                 musicadetenida = true;
                 musicajuego = false;
                 iniciadoprimeravez = false;
+                puntosreales = puntos;
             }
         }
         else if (transicion3 && !menu) {
+            if (jugadoractual->codigo <= puntosreales) {
+                jugadoractual->codigo = puntosreales;
+            }
+            guardardatosusuarios(puntuaciones);
             if (al_get_time() - tiempomensajetrans3 <= 37.0f) {
                 int nombre_ancho = al_get_text_width(fuentetitulo, jugadoractual->nombre.c_str());
                 float x_centrada = (952 * escaladoX) - nombre_ancho / 2;
@@ -646,8 +687,6 @@ int main() {
                 al_draw_text(fuentesubtitulo, al_map_rgb(215, 215, 255), 322 * escaladoX, 530 * escaladoY, 0, "El sujeto perfecto sin ninguna conexion emocional, excepto por el");
                 al_draw_text(fuentesubtitulo, al_map_rgb(215, 215, 255), 645 * escaladoX, 600 * escaladoY, 0, "Esperemos tenga bastante comida...");
                 
-
-
                 int totalxxx = 24;
                 int frames_por_fila100 = al_get_bitmap_width(totoro) / totalxxx;
                 int total_frames = frames_por_fila100 * (al_get_bitmap_height(totoro) / totalxxx); // Calcula el total de frames disponibles
@@ -661,10 +700,6 @@ int main() {
                 int nuevo_alto = totalxxx * 14;
 
                 al_draw_scaled_bitmap(totoro, frameX100, frameY100, totalxxx, totalxxx, 775 * escaladoX, 670 * escaladoY, nuevo_ancho, nuevo_alto, 0);
-
-
-
-
             }
             else {
                 transicion3 = false;

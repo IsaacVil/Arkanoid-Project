@@ -86,7 +86,10 @@ int obtenerbalance(abbptr N)
 
 void insertaravl(abbptr& avl, abbptr nuevo)
 {
-    if (avl == nullptr) //Si no hay nada solo se hace un lista = nuevo (Esto sirve para la recursividad vista en la parte de abajo)
+    if (nuevo == nullptr) {
+        return;
+    }
+    else if (avl == nullptr) //Si no hay nada solo se hace un lista = nuevo (Esto sirve para la recursividad vista en la parte de abajo)
     {
         avl = nuevo;
     }
@@ -190,7 +193,13 @@ void eliminar(abbptr arbol) {
 
 void guardarNodo(FILE* archivo, abbptr nodo) {
     if (nodo) {
-        fprintf(archivo, "%d ,%s ,%d ,%d ,%d ,%d\n", nodo->codigo, nodo->nombre.c_str(), nodo->totalbolas, nodo->bolasreb, nodo->bolasper, nodo->objetosdestruidos);
+        fprintf(archivo, "%d ,%s ,%d ,%d ,%d ,%d\n",
+            nodo->codigo,
+            nodo->nombre.c_str(),
+            nodo->totalbolas,
+            nodo->bolasreb,
+            nodo->bolasper,
+            nodo->objetosdestruidos);
     }
 }
 
@@ -203,7 +212,7 @@ void recorrerYGuardar(FILE* archivo, abbptr nodo) {
 }
 
 void guardardatosusuarios(abbptr arbol) {
-    const char* nombreArchivo = "top5\\puntuaciones.txt";
+    const char* nombreArchivo = "top5/puntuaciones.txt";
     FILE* archivo = nullptr;
 
     if (fopen_s(&archivo, nombreArchivo, "w+") != 0) {
@@ -218,7 +227,9 @@ void guardardatosusuarios(abbptr arbol) {
 
 
 void cargarDatosUsuarios(abbptr& arbol) {
-    const char* nombreArchivo = "top5\\puntuaciones.txt";
+    eliminar(arbol);
+    arbol = nullptr;
+    const char* nombreArchivo = "top5/puntuaciones.txt";
     FILE* archivo = nullptr;
 
     if (fopen_s(&archivo, nombreArchivo, "r+") != 0) {
@@ -245,7 +256,7 @@ void completarConNullptr(vector<abbptr>& nodos) {
     }
 }
 
-void obtenerTop5Codigos(abbptr arbol, std::vector<abbptr>& nodos, int& contador) {
+void obtenerTop5Codigos(abbptr arbol, vector<abbptr>& nodos, int& contador) {
     if (arbol == nullptr || contador >= 5) {
         return; // Salir si el árbol está vacío o ya tenemos 5 nodos
     }
@@ -271,3 +282,4 @@ vector<abbptr> mostrarTop5(abbptr arbol) {
     completarConNullptr(nodos);
     return nodos; // Retorna la lista de nodos
 }
+
