@@ -702,7 +702,7 @@ void manejarcolisionvivosenemigos(ptrenemigos& bola) {
 }
 
 void lanzarBolaDesdePlataforma(float plataforma_x, float plataforma_y, float plataforma_altura) {
-    if (!bolaLanzada || true) {
+    if (!bolaLanzada) {
         float velocidadX = (4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) + elementonivel * escaladoX1;
         float velocidadY = -5.0f - elementonivel * escaladoY1; // Lanza la bola hacia arriba
         ptrbola nuevabola = crearBola(plataforma_x, plataforma_y - plataforma_altura / 2.0 - 10.0f, velocidadX, velocidadY, 10.0f);

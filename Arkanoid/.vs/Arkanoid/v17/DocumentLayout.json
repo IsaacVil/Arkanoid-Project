@@ -54,8 +54,7 @@
               "RelativeToolTip": "Arkanoid\\dosjugadores.cpp",
               "ViewState": "AgIAAC4BAAAAAAAAAAAYwIwBAABvAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-10-19T16:03:32.86Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-19T16:03:32.86Z"
             },
             {
               "$type": "Document",
@@ -67,8 +66,7 @@
               "RelativeToolTip": "Arkanoid\\Carga y Guardado (AVL).h",
               "ViewState": "AgIAAAMAAAAAAAAAAAAgwCIAAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-17T17:17:39.635Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-17T17:17:39.635Z"
             },
             {
               "$type": "Document",
@@ -80,8 +78,7 @@
               "RelativeToolTip": "Arkanoid\\dosjugadores.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABUAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-19T16:03:32.013Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-19T16:03:32.013Z"
             },
             {
               "$type": "Document",
@@ -93,8 +90,7 @@
               "RelativeToolTip": "Arkanoid\\Arkanoid.cpp",
               "ViewState": "AgIAAA0CAAAAAAAAAADwvz8CAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-09-18T01:44:24.368Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-18T01:44:24.368Z"
             },
             {
               "$type": "Document",
@@ -106,8 +102,7 @@
               "RelativeToolTip": "Arkanoid\\Arkanoid.h",
               "ViewState": "AgIAAA0AAAAAAAAAAAAgwCEAAAATAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-09-23T00:46:14.68Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-23T00:46:14.68Z"
             },
             {
               "$type": "Document",
@@ -119,8 +114,7 @@
               "RelativeToolTip": "Arkanoid\\Assets.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-09-23T00:46:16.017Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-23T00:46:16.017Z"
             },
             {
               "$type": "Document",
@@ -130,7 +124,7 @@
               "RelativeDocumentMoniker": "Arkanoid\\Assets.cpp",
               "ToolTip": "C:\\Users\\taqui\\OneDrive\\Escritorio\\Proyecto 1A\\Arkanoid\\Arkanoid\\Assets.cpp",
               "RelativeToolTip": "Arkanoid\\Assets.cpp",
-              "ViewState": "AgIAADIBAAAAAAAAAADwv1IBAAAKAAAAAAAAAA==",
+              "ViewState": "AgIAAKYCAAAAAAAAAADwv8ACAAAXAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-09-18T17:31:03.806Z",
               "EditorCaption": ""
@@ -145,8 +139,7 @@
               "RelativeToolTip": "Arkanoid\\Carga y Guardado (AVL).cpp",
               "ViewState": "AgIAANQAAAAAAAAAAAAewOEAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-10-17T17:03:28.681Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-17T17:03:28.681Z"
             }
           ]
         }
