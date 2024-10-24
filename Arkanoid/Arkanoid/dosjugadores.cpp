@@ -48,6 +48,7 @@ bool animacionterminadap2 = false;
 bool juegoperdidoseriop1 = false;
 bool juegoperdidoseriop2 = false;
 bool randomp2 = false;
+bool ia_activada_p3 = true;
 int contador_framep2 = 0;
 int velocidad_framep2 = 100;
 int frame2p2 = 0;
@@ -252,6 +253,26 @@ void actualizarBolasp2(float plataforma_x, float plataforma_y, float plataforma_
     }
 }
 
+void iaControlarPlataformap3(float& plataforma_yp3, float plataforma_alturap3, float velocidadp2) {
+    // Revisa si hay una bola en juego
+    if (listabolap3 != nullptr) {
+        // Apunta a la primera bola en la lista
+        ptrbolap2 bola_actual = listabolap3;
+
+        // Aquí puedes elegir la primera bola para seguirla o implementar alguna lógica de selección
+        float bola_y = bola_actual->y;
+
+        // Si la bola está por encima de la plataforma
+        if (bola_y < plataforma_yp3 - plataforma_alturap3 / 2.0) {
+            plataforma_yp3 -= velocidadp2; // Mueve la plataforma hacia arriba
+        }
+        // Si la bola está por debajo de la plataforma
+        else if (bola_y > plataforma_yp3 + plataforma_alturap3 / 2.0) {
+            plataforma_yp3 += velocidadp2; // Mueve la plataforma hacia abajo
+        }
+    }
+}
+
 void paletap3(ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento, ALLEGRO_FONT* fuente) {
     ALLEGRO_BITMAP* imagenPlataforma = al_load_bitmap("sprites/nave/normalpl1.png");
     al_draw_scaled_bitmap(imagenPlataforma, 0, 0, al_get_bitmap_width(imagenPlataforma), al_get_bitmap_height(imagenPlataforma), plataforma_xp3 - plataforma_anchurap3 / 2.0,
@@ -261,17 +282,19 @@ void paletap3(ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento, ALLEGR
         al_draw_filled_circle(plataforma_xp3 - 10, plataforma_yp3, 13.0f, al_map_rgb(0, 0, 0));
         al_draw_filled_circle(plataforma_xp3 - 10, plataforma_yp3, 10.0f, al_map_rgb(0, 0, 255)); // Color rojo para la bola
     }
-    if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
-        switch (evento.keyboard.keycode) {
-        case ALLEGRO_KEY_I:
-            plataforma_yp3 -= velocidadp2;
-            break;
-        case ALLEGRO_KEY_K:
-            plataforma_yp3 += velocidadp2;
-            break;
-        case ALLEGRO_KEY_ENTER:
-            lanzarBolaDesdePlataformap3(plataforma_xp3 - 10, plataforma_yp3, plataforma_alturap3);
-            break;
+    if (!(ia_activada_p3)) {
+        if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
+            switch (evento.keyboard.keycode) {
+            case ALLEGRO_KEY_I:
+                plataforma_yp3 -= velocidadp2;
+                break;
+            case ALLEGRO_KEY_K:
+                plataforma_yp3 += velocidadp2;
+                break;
+            case ALLEGRO_KEY_ENTER:
+                lanzarBolaDesdePlataformap3(plataforma_xp3 - 10, plataforma_yp3, plataforma_alturap3);
+                break;
+            }
         }
     }
     if (plataforma_yp3 - plataforma_alturap3 / 2.0 < (110 + 30) * escaladoX) {
@@ -282,6 +305,10 @@ void paletap3(ALLEGRO_EVENT_QUEUE*& coladeeventos, ALLEGRO_EVENT& evento, ALLEGR
     }
     if (bolaLanzadap3 == true) {
         actualizarBolasp3(plataforma_xp3, plataforma_yp3, plataforma_anchurap3, plataforma_alturap3);
+    }
+    if (ia_activada_p3) {
+        iaControlarPlataformap3(plataforma_yp3, plataforma_alturap3, velocidadp2);
+        lanzarBolaDesdePlataformap3(plataforma_xp3 - 10, plataforma_yp3, plataforma_alturap3);
     }
     dibujarBolasp3();
 }
@@ -359,10 +386,18 @@ void iniciarduojugadores(ALLEGRO_FONT* fuente, ALLEGRO_FONT* fuentesub, ALLEGRO_
     al_draw_text(fuente, al_map_rgb(255, 255, 255), 925 * escaladoX, 500 * escaladoY, 0, "VS");
     al_draw_text(fuentesub, al_map_rgb(255, 255, 255), 25 * escaladoX, 30 * escaladoY, 0, "VIDAS RESTANTES P1: ");
     al_draw_text(fuente, al_map_rgb(255, 255, 255), 625 * escaladoX, 30 * escaladoY, 0, to_string(vidajugador).c_str());
-    al_draw_text(fuentesub, al_map_rgb(255, 255, 255), 980 * escaladoX, 30 * escaladoY, 0, "VIDAS RESTANTES P2: ");
-    al_draw_text(fuente, al_map_rgb(255, 255, 255), 1580 * escaladoX, 30 * escaladoY, 0, to_string(vidajugador2).c_str());
     al_draw_text(fuentesub, al_map_rgb(255, 255, 255), 025 * escaladoX, 950 * escaladoY, 0, "P1: Muevete W,S, SPACE para Lanzar la Bola");
-    al_draw_text(fuentesub, al_map_rgb(255, 255, 255), 980 * escaladoX, 950 * escaladoY, 0, "P2: Muevete I,K, ENTER para Lanzar la Bola");
+
+    if (!(ia_activada_p3)) {
+        al_draw_text(fuentesub, al_map_rgb(255, 255, 255), 980 * escaladoX, 30 * escaladoY, 0, "VIDAS RESTANTES P2: ");
+        al_draw_text(fuente, al_map_rgb(255, 255, 255), 1580 * escaladoX, 30 * escaladoY, 0, to_string(vidajugador2).c_str());
+        al_draw_text(fuentesub, al_map_rgb(255, 255, 255), 980 * escaladoX, 950 * escaladoY, 0, "P2: Muevete I,K, ENTER para Lanzar la Bola");
+    }
+    else {
+        al_draw_text(fuentesub, al_map_rgb(255, 255, 255), 980 * escaladoX, 30 * escaladoY, 0, "VIDAS RESTANTES MAQUINA: ");
+        al_draw_text(fuente, al_map_rgb(255, 255, 255), 1580 * escaladoX, 30 * escaladoY, 0, to_string(vidajugador2).c_str());
+        al_draw_text(fuentesub, al_map_rgb(255, 255, 255), 980 * escaladoX, 950 * escaladoY, 0, "P2: Lucha contra la MAQUINA");
+    }
     paletap2(coladeeventos, evento, fuente);
     paletap3(coladeeventos, evento, fuente);
 }

@@ -19,5 +19,6 @@
 #include <windows.h>
 extern bool juegoperdidoseriop1;
 extern bool juegoperdidoseriop2;
+extern bool ia_activada_p3;
 void vidasfull();
 void iniciarduojugadores(ALLEGRO_FONT* fuente, ALLEGRO_FONT* fuentesub, ALLEGRO_TIMER* temporizador_bola, ALLEGRO_EVENT_QUEUE* coladeeventos, ALLEGRO_EVENT& evento);

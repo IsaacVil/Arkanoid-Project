@@ -58,6 +58,7 @@ bool activoespera = false;
 bool perdio = false;
 bool musicajuego = false;
 bool duojugadores = false;
+bool elegidosduo = false;
 int puntos = 0;
 double tiempomensajetrans1 = 0;
 double tiempomensajetrans2 = 0;
@@ -357,10 +358,12 @@ int main() {
                     if (opcion == 0) {
                         menu = false;
                         niveles = true;
+                        puntos = 0;
                     }
                     else if (opcion == 1) {
                         menu = false;
                         duojugadores = true;
+                        elegidosduo = false;
                         niveles = false;
                         top5 = false;
                         juegoperdidoseriop1 = false;
@@ -529,43 +532,90 @@ int main() {
         }
         else if (duojugadores) ////////////////////////////////////////////NIVEL 1////////////////////////////////////////////
         {
-            if (!(juegoperdidoseriop1 || juegoperdidoseriop2)) {
-                tiempo += 0.3 / FPS;
-                color_actual = colorarcoiris(tiempo);
-                iniciarduojugadores(fuente, fuentesubtitulo, temporizador_bola, coladeevento, evento);
-                tiempomensajeduo = al_get_time();
-            }
-            else if (juegoperdidoseriop1 && juegoperdidoseriop2) {
-                string mensaje = "Empatados";
-                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 420 * escaladoX, 600 * escaladoY, 0, "EMPATADOS");
-                if (al_get_time() - tiempomensajeduo >= 0.5f) {
-                    vidasfull();
-                    hr = pVoice->Speak(wstring(mensaje.begin(), mensaje.end()).c_str(), SPF_IS_XML, NULL);
-                    duojugadores = false;
-                    menu = true;
+            ALLEGRO_COLOR color_actual = colorarcoiris(tiempo);
+            if (!elegidosduo) {
+                if (opcion == 0) {
+                    al_draw_text(fuente, color_actual, 472 * escaladoX, 400 * escaladoY, 0, "2 JUGADORES");
                 }
+                else if (opcion == 1) {
+                    al_draw_text(fuente, color_actual, 472 * escaladoX, 550 * escaladoY, 0, "CONTRA LA MAQUINA");
+                }
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 475 * escaladoX, 400 * escaladoY, 0, "2 JUGADORES");
+                al_draw_text(fuente, al_map_rgb(255, 255, 255), 475 * escaladoX, 550 * escaladoY, 0, "CONTRA LA MAQUINA");
 
-            }
-            else if (juegoperdidoseriop2 && (!(juegoperdidoseriop1))) {
-                string mensaje = "Jugador 1 GANADOR";
-                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 400 * escaladoX, 250 * escaladoY, 0, "JUGADOR 1");
-                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 420 * escaladoX, 600 * escaladoY, 0, "GANADOR");
-                if (al_get_time() - tiempomensajeduo >= 0.5f) {
-                    vidasfull();
-                    hr = pVoice->Speak(wstring(mensaje.begin(), mensaje.end()).c_str(), SPF_IS_XML, NULL);
-                    duojugadores = false;
-                    menu = true;
+                if (evento.type == ALLEGRO_EVENT_KEY_DOWN) {
+                    switch (evento.keyboard.keycode) {
+                    case ALLEGRO_KEY_ENTER:
+                        if (opcion == 0) {
+                            elegidosduo = true;
+                            ia_activada_p3 = false;
+                        }
+                        else if (opcion == 1) {
+                            elegidosduo = true;
+                            ia_activada_p3 = true;
+                        }
+                        opcion = 0;
+                    case ALLEGRO_KEY_DOWN:
+                    case ALLEGRO_KEY_S:
+                        opcion = opcion + 1;
+                        if (opcion % 2 == 0) {
+                            opcion = 0;
+                        }
+                        break;
+
+                    case ALLEGRO_KEY_UP:
+                    case ALLEGRO_KEY_W:
+                        opcion = opcion - 1;
+                        if (opcion < 0) {
+                            opcion = 1;
+                        }
+                        break;
+                    case ALLEGRO_KEY_ESCAPE:
+                        opcion = 0;
+                        duojugadores = false;
+                        menu = true;
+                    }
                 }
             }
-            else if (juegoperdidoseriop1 && (!(juegoperdidoseriop2))) {
-                string mensaje = "Jugador 2 GANADOR";
-                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 400 * escaladoX, 250 * escaladoY, 0, "JUGADOR 2");
-                al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 420 * escaladoX, 600 * escaladoY, 0, "GANADOR");
-                if (al_get_time() - tiempomensajeduo >= 0.5f) {
-                    vidasfull();
-                    hr = pVoice->Speak(wstring(mensaje.begin(), mensaje.end()).c_str(), SPF_IS_XML, NULL);
-                    duojugadores = false;
-                    menu = true;
+            else {
+                if (!(juegoperdidoseriop1 || juegoperdidoseriop2)) {
+                    tiempo += 0.3 / FPS;
+                    color_actual = colorarcoiris(tiempo);
+                    iniciarduojugadores(fuente, fuentesubtitulo, temporizador_bola, coladeevento, evento);
+                    tiempomensajeduo = al_get_time();
+                }
+                else if (juegoperdidoseriop1 && juegoperdidoseriop2) {
+                    string mensaje = "Empatados";
+                    al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 420 * escaladoX, 600 * escaladoY, 0, "EMPATADOS");
+                    if (al_get_time() - tiempomensajeduo >= 0.5f) {
+                        vidasfull();
+                        hr = pVoice->Speak(wstring(mensaje.begin(), mensaje.end()).c_str(), SPF_IS_XML, NULL);
+                        duojugadores = false;
+                        menu = true;
+                    }
+
+                }
+                else if (juegoperdidoseriop2 && (!(juegoperdidoseriop1))) {
+                    string mensaje = "Jugador 1 GANADOR";
+                    al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 400 * escaladoX, 250 * escaladoY, 0, "JUGADOR 1");
+                    al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 420 * escaladoX, 600 * escaladoY, 0, "GANADOR");
+                    if (al_get_time() - tiempomensajeduo >= 0.5f) {
+                        vidasfull();
+                        hr = pVoice->Speak(wstring(mensaje.begin(), mensaje.end()).c_str(), SPF_IS_XML, NULL);
+                        duojugadores = false;
+                        menu = true;
+                    }
+                }
+                else if (juegoperdidoseriop1 && (!(juegoperdidoseriop2))) {
+                    string mensaje = "Jugador 2 GANADOR";
+                    al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 400 * escaladoX, 250 * escaladoY, 0, "JUGADOR 2");
+                    al_draw_text(fuentetitulo, al_map_rgb(255, 255, 255), 420 * escaladoX, 600 * escaladoY, 0, "GANADOR");
+                    if (al_get_time() - tiempomensajeduo >= 0.5f) {
+                        vidasfull();
+                        hr = pVoice->Speak(wstring(mensaje.begin(), mensaje.end()).c_str(), SPF_IS_XML, NULL);
+                        duojugadores = false;
+                        menu = true;
+                    }
                 }
             }
         }

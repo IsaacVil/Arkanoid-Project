@@ -41,6 +41,7 @@ bool mostrarmensaje = false;
 bool iniciadoprimeravez = false;
 bool animacionterminada = false;
 bool random = false;
+bool enemigocaidoeliminado = true;
 int contador_frame = 0;
 int velocidad_frame = 100;
 int frame2 = 0;
@@ -335,6 +336,7 @@ void dibujarEnemigos() {
     ALLEGRO_BITMAP* enemigo4 = al_load_bitmap("sprites/enemigos/4.png");
 
     while (actual != nullptr) {
+        //al_draw_filled_circle(actual->x, actual->y, 40, al_map_rgb(255, 0, 0)); 
         if (actual->tipo == 0) {
             int totalenemigo1 = 16;
             int frames_por_fila10 = al_get_bitmap_width(enemigo1) / totalenemigo1;
@@ -700,7 +702,7 @@ void manejarcolisionvivosenemigos(ptrenemigos& bola) {
 }
 
 void lanzarBolaDesdePlataforma(float plataforma_x, float plataforma_y, float plataforma_altura) {
-    if (!bolaLanzada) {
+    if (!bolaLanzada || true) {
         float velocidadX = (4.0f + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / 2.0f))) + elementonivel * escaladoX1;
         float velocidadY = -5.0f - elementonivel * escaladoY1; // Lanza la bola hacia arriba
         ptrbola nuevabola = crearBola(plataforma_x, plataforma_y - plataforma_altura / 2.0 - 10.0f, velocidadX, velocidadY, 10.0f);
@@ -714,7 +716,7 @@ void lanzarBolaDesdePlataforma(float plataforma_x, float plataforma_y, float pla
 void actualizarEnemigos() {
     ptrenemigos actual = listaenemigos;
     ptrenemigos anterior = nullptr;
-    int margen = 10;
+    int margen = 0;
     ptrbola bola_actual = listabola;
 
     while (actual != nullptr) {
@@ -733,9 +735,10 @@ void actualizarEnemigos() {
         if (actual->y - actual->radio < 65 * escaladoY1) {
             actual->velocidadY *= -1; // Rebotar en la parte superior
         }
-        if (actual->y - actual->radio > 1040 * escaladoY1) { // Prueba con un valor fijo
-            puntos -= 8000;
+        if (actual->y > 1040 * escaladoY1) { // Prueba con un valor fijo
             enemigoEliminado = true;
+            enemigocaidoeliminado = true;
+            puntos = puntos - 20000;
         }
 
         // Variable para verificar si se eliminó el enemigo
@@ -745,35 +748,44 @@ void actualizarEnemigos() {
             float bolaY = bola_actual->y * escaladoY;
 
             // Comprobar si hay una colisión
-            if (bolaX + bola_actual->radio >= actual->x - actual->radio - margen && bolaX - bola_actual->radio <= actual->x + actual->radio + margen &&
+            if (bolaX + bola_actual->radio >= actual->x - actual->radio - margen &&
+                bolaX - bola_actual->radio <= actual->x + actual->radio + margen &&
                 bolaY + bola_actual->radio >= actual->y - actual->radio - margen &&
                 bolaY - bola_actual->radio <= actual->y + actual->radio + margen) {
 
-                // Calcular las distancias en los ejes X y Y
-                float distanciaambasx = bolaX - actual->x;
-                float distanciaambasy = bolaY - actual->y;
+                // Asegurarse de que la bola no esté completamente dentro del enemigo
+                // El golpe es válido si solo parte de la bola está dentro de los bordes del enemigo
+                if (!(bolaX - bola_actual->radio > actual->x + actual->radio ||
+                    bolaX + bola_actual->radio < actual->x - actual->radio ||
+                    bolaY - bola_actual->radio > actual->y + actual->radio ||
+                    bolaY + bola_actual->radio < actual->y - actual->radio)) {
 
-                // Determinar qué lado del enemigo fue golpeado
-                if (abs(distanciaambasx) > abs(distanciaambasy) && distanciaambasx > 0) {
-                    // Colisión desde la derecha
-                    bola_actual->velocidadX *= -1; // Cambiar dirección en X
-                }
-                else if (abs(distanciaambasx) > abs(distanciaambasy) && distanciaambasx < 0) {
-                    // Colisión desde la izquierda
-                    bola_actual->velocidadX *= -1; // Cambiar dirección en X
-                }
-                else if (abs(distanciaambasy) > abs(distanciaambasx) && distanciaambasy > 0) {
-                    // Colisión desde abajo
-                    bola_actual->velocidadY *= -1; // Cambiar dirección en Y
-                }
-                else if (abs(distanciaambasy) > abs(distanciaambasx) && distanciaambasy < 0) {
-                    // Colisión desde arriba
-                    bola_actual->velocidadY *= -1; // Cambiar dirección en Y
-                }
+                    // Calcular las distancias en los ejes X y Y
+                    float distanciaambasx = bolaX - actual->x;
+                    float distanciaambasy = bolaY - actual->y;
 
-                // Marcar el enemigo para eliminar
-                enemigoEliminado = true;
-                break; // Salir del bucle de bolas ya que el enemigo ha sido golpeado
+                    // Determinar qué lado del enemigo fue golpeado
+                    if (abs(distanciaambasx) > abs(distanciaambasy) && distanciaambasx > 0) {
+                        // Colisión desde la derecha
+                        bola_actual->velocidadX *= -1; // Cambiar dirección en X
+                    }
+                    else if (abs(distanciaambasx) > abs(distanciaambasy) && distanciaambasx < 0) {
+                        // Colisión desde la izquierda
+                        bola_actual->velocidadX *= -1; // Cambiar dirección en X
+                    }
+                    else if (abs(distanciaambasy) > abs(distanciaambasx) && distanciaambasy > 0) {
+                        // Colisión desde abajo
+                        bola_actual->velocidadY *= -1; // Cambiar dirección en Y
+                    }
+                    else if (abs(distanciaambasy) > abs(distanciaambasx) && distanciaambasy < 0) {
+                        // Colisión desde arriba
+                        bola_actual->velocidadY *= -1; // Cambiar dirección en Y
+                    }
+
+                    // Marcar el enemigo para eliminar
+                    enemigoEliminado = true;
+                    break; // Salir del bucle de bolas ya que el enemigo ha sido golpeado
+                }
             }
 
             bola_actual = bola_actual->siguiente; // Avanza al siguiente nodo en la lista de bolas
