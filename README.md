@@ -7,6 +7,7 @@ The game was a collaborative effort between Isaac Villalobos and Kevin Vega, sho
 Any questions or inquiries about the inner workings of the project can be directed to my personal email: IsaacVillalobosB@gmail.com.  
   
 ## Features
+Game Modes: 1 vs 1 Mode: Play against another player in real-time, 1 vs Machine Mode: Challenge an AI opponent.
 Dynamic Gameplay: A modern take on the classic Arkanoid game.  
 Data Structure Integration: AVL Trees for efficient data retrieval, Linked Lists for managing game objects and enemies, Event Queues for handling user input and game events.  
 Interactive Elements: Sprites for dynamic and visually appealing graphics (Using Allegro), Music and Sound Effects for an immersive experience, Text-to-Speech (TTS): Announces the player's name during the statistics showcase.
@@ -23,8 +24,8 @@ Version Control: GitHub
 ## Installation and Usage
 1) Clone this repository: git clone https://github.com/IsaacVil/Arkanoid-Game.git  
 2) Open the project in your preferred C++ IDE or compiler (Compatible with the Allegro library).  
-3) Build and run the project to launch the clinic simulation system.  
-4) XML files will be automatically generated and updated during runtime to store all clinic data.  
+3) Compile the project following the instructions in the source files or provided documentation.  
+4) Run the executable to start the game.  
 
 ## Learning Outcomes
 Through this project, we:  
@@ -35,3 +36,15 @@ Improved teamwork and collaboration through Git version control.
 
 ## Acknowledgments
 We would like to thank our professor and classmates at TEC for their guidance and support throughout the development of this project.  
+Sprites:  
+Arkanoid Original Sprites: https://www.spriters-resource.com/arcade/arkanoid/
+Pixel Planet Generator by Deep-Fold: https://deep-fold.itch.io/pixel-planet-generator
+
+Music:  
+"Above All" by HOME (Level 1)  
+"Before The Night" by HOME (Level 2)  
+"Luna de Diseño Instrumental" by Rojuu (Level 3)  
+"Victory Music" from Kirby  (Victory music between levels)  
+"Death Sound" from The Legend of Zelda: Breath of the Wild (For the death sound in game)  
+"Force" by Alan Walker  (1 vs 1)  
+"Undertale OST: 063 - It's Raining Somewhere Else" by Toby Fox (Statistics)  
