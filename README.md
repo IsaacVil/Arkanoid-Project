@@ -37,8 +37,8 @@ Improved teamwork and collaboration through Git version control.
 ## Acknowledgments
 We would like to thank our professor and classmates at TEC for their guidance and support throughout the development of this project.  
 Sprites:  
-Arkanoid Original Sprites: https://www.spriters-resource.com/arcade/arkanoid/
-Pixel Planet Generator by Deep-Fold: https://deep-fold.itch.io/pixel-planet-generator
+Arkanoid Original Sprites: https://www.spriters-resource.com/arcade/arkanoid/  
+Pixel Planet Generator by Deep-Fold: https://deep-fold.itch.io/pixel-planet-generator  
 
 Music:  
 "Above All" by HOME (Level 1)  
