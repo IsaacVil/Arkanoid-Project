@@ -34,8 +34,7 @@ Enhanced our skills in C++ programming and system design.
 Developed an interactive game with a focus on user experience, including AI and TTS.  
 Improved teamwork and collaboration through Git version control.  
 
-## Acknowledgments
-We would like to thank our professor and classmates at TEC for their guidance and support throughout the development of this project.  
+## Credits
 Sprites:  
 Arkanoid Original Sprites: https://www.spriters-resource.com/arcade/arkanoid/  
 Pixel Planet Generator by Deep-Fold: https://deep-fold.itch.io/pixel-planet-generator  
@@ -48,3 +47,6 @@ Music:
 "Death Sound" from The Legend of Zelda: Breath of the Wild (For the death sound in game)  
 "Force" by Alan Walker  (1 vs 1)  
 "Undertale OST: 063 - It's Raining Somewhere Else" by Toby Fox (Statistics)  
+
+## Acknowledgments
+We would like to thank our professor and classmates at TEC for their guidance and support throughout the development of this project.
